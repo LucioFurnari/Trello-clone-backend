@@ -1,4 +1,4 @@
-import  {user} from './user.js'
+import  {user} from './user'
 
 export const index = {
   user,
