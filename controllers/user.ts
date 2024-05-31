@@ -1,39 +1,46 @@
 import { body, validationResult } from "express-validator";
-import { Request } from "express-validator/lib/base";
-import bcrypt, { hash } from 'bcrypt';
+import bcrypt from 'bcrypt';
+import express from 'express';
 
 export const createUser = [
   body('username').trim().notEmpty(),
   body('email').isEmail().notEmpty(),
   body('password').trim().notEmpty(),
-  async (req: Request, res: { json: (arg0: { message?: string; error?: boolean; }) => any; }) => {
+  async (req: express.Request, res: express.Response ) => {
     const result = validationResult(req);
 
     if (result.isEmpty()) {
-      return res.json({
+      return res.status(200).json({
         message: 'User created!',
       })
     }
 
-    return res.json({ error: true})
+    return res.json({ error: true, list: JSON.stringify(result)})
   },
 ];
 
-export const getUser = async (_req: Request, res: { json: (arg0: { user: string; }) => void; }) => {
-  res.json({
+export const getUser = async (_req: express.Request, res: express.Response) => {
+  return res.status(200).json({
     user: 'User data',
   })
 };
 
-async function generateHash() {
-  bcrypt.hash('B4c0/\/', 8, (error, hash) => {
-    console.log(hash);
+export async function generateHash() {
+  let result = ''
+  bcrypt.hash('bacon', 8, (_error, hash) => {
+    result = hash
   });
+  return result;
 };
 
+export function simpleMath(a: number, b: number) {
+  return a+b;
+}
+//@ts-ignore
 async function checkPassword(hash: string) {
-  bcrypt.compare('B4c0/\/', hash, (error, res) => {
+  bcrypt.compare('bacon', hash, (error, res) => {
     if (res) {
+      console.log('The password is the same :o')
       // something
     }
     console.log(error);
