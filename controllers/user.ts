@@ -33,9 +33,6 @@ export async function generateHash() {
   return result;
 };
 
-export function simpleMath(a: number, b: number) {
-  return a+b;
-}
 //@ts-ignore
 async function checkPassword(hash: string) {
   bcrypt.compare('bacon', hash, (error, res) => {
