@@ -19,11 +19,23 @@ export const createUser = [
   },
 ];
 
-export const getUser = async (_req: express.Request, res: express.Response) => {
+export async function getUser(_req: express.Request, res: express.Response) {
   return res.status(200).json({
     user: 'User data',
   })
 };
+
+export async function updateUserData() {
+  
+}
+
+export async function loginUser() {
+  
+}
+
+export async function logoutUser() {
+  
+}
 
 export async function generateHash() {
   let result = ''
