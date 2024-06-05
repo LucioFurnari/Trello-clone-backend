@@ -21,3 +21,11 @@ export async function getWorkSpace(_req: express.Request, _res: express.Response
 export async function getAllWorkSpaces() {
   
 }
+
+export async function updateWorkSpace() {
+  
+}
+
+export async function deleteWorkSpace() {
+  
+}
