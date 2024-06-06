@@ -57,23 +57,23 @@ export const loginUser = [
       })
 
       if (user) {
-        bcrypt.compare(password, user?.password, (err, result) => {
-          if (err) {
-            // Handle error
-            console.error('Error comparing passwords:', err);
-            return;
-          }
+        bcrypt.compare(password, user?.password, (_err, result) => {
+          // if (err) {
+          //   // Handle error
+          //   console.error('Error comparing passwords:', err);
+          //   return;
+          // }
   
           if (result) {
             return res.json({ message: 'User logged!'});
           } else {
-            return res.json({ message: 'The password is incorrect'});
+            return res.status(400).json({ message: 'The password is incorrect'});
           }
         })
       }
+    } else {
+      return res.status(400).json({ error: true, errorList: JSON.stringify(result)});
     }
-
-    return res.status(400).json({ error: true, errorList: JSON.stringify(result)});
   }
 ]
 
