@@ -82,3 +82,22 @@ export const loginUser = [
 export async function logoutUser() {
   
 }
+
+export function verifyToken(req: express.Request, res: express.Response, _next: express.NextFunction) {
+  const bearerHeader: string | undefined = req.headers.authorization;
+
+  if(bearerHeader) {
+    const bearer = bearerHeader.split(' ');
+    const bearerToken = bearer[1];
+    jwt.verify(bearerToken, 'Olivia', (err, decoded) => {
+      if(err) {
+        return res.status(400).json({ error: err });
+      }
+      if(decoded) {
+        return res.status(200).json({decoded})
+      }
+
+      return res.status(400).json({ message: 'invalid token' })
+    } )
+  }
+}
