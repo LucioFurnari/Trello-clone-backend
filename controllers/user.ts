@@ -82,23 +82,3 @@ export const loginUser = [
 export async function logoutUser() {
   
 }
-
-export async function generateHash() {
-  let result = ''
-  bcrypt.hash('bacon', 8, (_error, hash) => {
-    result = hash
-  });
-  return result;
-};
-
-//@ts-ignore
-async function checkPassword(hash: string) {
-  bcrypt.compare('bacon', hash, (error, res) => {
-    if (res) {
-      console.log('The password is the same :o')
-      // something
-    }
-    console.log(error);
-    // res => true or false
-  });
-}
