@@ -1,11 +1,14 @@
 import express from 'express';
-import { index } from './routes/index.js';
+import cors from 'cors';
+import { index } from './routes/index';
 const app = express();
 const PORT = process.env.PORT;
+
+app.use(cors());
 
 app.use(express.json());
 app.use('/api', index.user);
 
-app.listen(PORT, () => {
+export const server = app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`)
 });
