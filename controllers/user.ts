@@ -2,15 +2,16 @@ import { body, validationResult } from "express-validator";
 import { PrismaClient } from "@prisma/client";
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import { Request, Response, NextFunction } from "express";
 import express from 'express';
 
 const prisma = new PrismaClient();
 
 export const createUser = [
-  body('username').trim().notEmpty(),
-  body('email').isEmail().notEmpty(),
-  body('password').trim().notEmpty(),
-  async (req: express.Request, res: express.Response) => {
+  body('username').notEmpty().trim().escape(),
+  body('email').notEmpty().isEmail().normalizeEmail(),
+  body('password').notEmpty().trim().escape(),
+  async (req: Request, res: Response) => {
     const { username, email, password} = req.body;
     const result = validationResult(req);
 
@@ -34,7 +35,7 @@ export const createUser = [
   },
 ];
 
-export async function getUser(_req: express.Request, res: express.Response) {
+export async function getUser(_req: Request, res: Response) {
   return res.status(200).json({
     user: 'User data',
   })
@@ -45,7 +46,7 @@ export async function updateUserData() {
 }
 
 export const loginUser = [
-  body('email').trim().notEmpty().isEmail(),
+  body('email').notEmpty().trim().isEmail().normalizeEmail(),
   async (req: express.Request, res: express.Response) => { 
     const { email, password } = req.body;
     const result = validationResult(req);
@@ -82,22 +83,24 @@ export const loginUser = [
 export async function logoutUser() {
   
 }
+interface AuthRequest extends Request {
+  user?: any;
+}
 
-export function verifyToken(req: express.Request, res: express.Response, _next: express.NextFunction) {
-  const bearerHeader: string | undefined = req.headers.authorization;
+export function verifyToken(req: AuthRequest, res: express.Response, next: NextFunction) {
+  const bearerHeader: string | undefined = req.header('Authorization');
 
-  if(bearerHeader) {
-    const bearer = bearerHeader.split(' ');
-    const bearerToken = bearer[1];
-    jwt.verify(bearerToken, 'Olivia', (err, decoded) => {
-      if(err) {
-        return res.status(400).json({ error: err });
-      }
-      if(decoded) {
-        return res.status(200).json({decoded})
-      }
+  if(!bearerHeader) {
+    return res.status(401).json({ message: 'No token, authorization denied', error: true });
+  }
 
-      return res.status(400).json({ message: 'invalid token' })
-    } )
+  const bearer = bearerHeader.split(' ');
+  const bearerToken = bearer[1];
+  try {
+    const decoded = jwt.verify(bearerToken, 'your_jwt_secret_key');
+    req.user = (decoded as any).user;
+    next();
+  } catch (err) {
+    res.status(401).json({ message: 'Token is not valid' });
   }
 }
