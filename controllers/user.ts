@@ -1,5 +1,6 @@
 import { body, validationResult } from "express-validator";
 import { PrismaClient } from "@prisma/client";
+import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import express from 'express';
 
@@ -57,22 +58,23 @@ export const loginUser = [
       })
 
       if (user) {
-        bcrypt.compare(password, user?.password, (_err, result) => {
-          // if (err) {
-          //   // Handle error
-          //   console.error('Error comparing passwords:', err);
-          //   return;
-          // }
-  
-          if (result) {
-            return res.json({ message: 'User logged!'});
+        bcrypt.compare(password, user?.password, (err, pass) => {
+          if (err) {
+            // Handle error
+            console.error('Error comparing passwords:', err);
+            return;
+          }
+
+          if (pass) {
+            const token = jwt.sign({ user: user }, 'Olivia')
+            return res.status(200).json({ message: 'User logged', token });
           } else {
             return res.status(400).json({ message: 'The password is incorrect'});
           }
         })
       }
     } else {
-      return res.status(400).json({ error: true, errorList: JSON.stringify(result)});
+      return res.status(400).json({ error: true, errorList: result.array});
     }
   }
 ]
