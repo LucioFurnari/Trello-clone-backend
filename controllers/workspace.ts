@@ -39,7 +39,7 @@ export const createWorkSpace = [
 export async function getWorkSpace(req: Request, res: Response) {
   const { workspace_id } = req.params;
 
-  if( !Number.isNaN(parseInt(workspace_id))) {
+  if(!Number.isNaN(parseInt(workspace_id))) {
     const workspace = await prisma.workspace.findUnique({
       where: { workspace_id: parseInt(workspace_id) }
     });
@@ -56,9 +56,29 @@ export async function getAllWorkSpaces() {
   
 }
 
-export async function updateWorkSpace() {
-  
-}
+export const updateWorkspace = [
+  body('name').notEmpty().trim().escape(),
+  async (req: Request, res: Response) => {
+    const result = validationResult(req);
+    const { workspace_id } = req.params;
+    const { name, description } = req.body;
+
+    if(!result.isEmpty()) {
+      return res.status(400).json({ errorList: result.array(), error: true });
+    }
+
+    if(!Number.isNaN(parseInt(workspace_id))) {
+      const updatedWorkspace = await prisma.workspace.update({
+        where: { workspace_id: parseInt(workspace_id) },
+        data: { name: name, description: description }
+      });
+      if(!updateWorkspace) {
+        return res.status(404).json({ message: 'Error, workspace not found', error: true });
+      }
+      return res.status(200).json({ message: 'Workspace updated', updatedWorkspace });
+    }
+  }
+]
 
 export async function deleteWorkSpace() {
   
