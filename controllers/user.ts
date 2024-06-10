@@ -46,8 +46,9 @@ export async function updateUserData() {
 }
 
 export const loginUser = [
-  body('email').notEmpty().trim().isEmail().normalizeEmail(),
-  async (req: express.Request, res: express.Response) => { 
+  body('email').notEmpty().trim().isEmail(),
+  body('password').notEmpty().trim().escape(),
+  async (req: Request, res: Response) => { 
     const { email, password } = req.body;
     const result = validationResult(req);
 
@@ -57,25 +58,26 @@ export const loginUser = [
           email: email
         }
       })
-
-      if (user) {
-        bcrypt.compare(password, user?.password, (err, pass) => {
-          if (err) {
-            // Handle error
-            console.error('Error comparing passwords:', err);
-            return;
-          }
-
-          if (pass) {
-            const token = jwt.sign({ user: user }, 'Olivia')
-            return res.status(200).json({ message: 'User logged', token });
-          } else {
-            return res.status(400).json({ message: 'The password is incorrect'});
-          }
-        })
+      console.log(user)
+      if (!user) {
+        return res.status(404).json({ message: 'User not found', error: true });
       }
+      bcrypt.compare(password, user!.password, (err, pass) => {
+        if (err) {
+          // Handle error
+          console.error('Error comparing passwords:', err);
+          return;
+        }
+
+        if (pass) {
+          const token = jwt.sign({ user: user }, 'Olivia')
+          return res.status(200).json({ message: 'User logged', token });
+        } else {
+          return res.status(400).json({ message: 'The password is incorrect'});
+        }
+      })
     } else {
-      return res.status(400).json({ error: true, errorList: result.array});
+      return res.status(400).json({ error: true, errorList: result.array()});
     }
   }
 ]
@@ -97,10 +99,10 @@ export function verifyToken(req: AuthRequest, res: express.Response, next: NextF
   const bearer = bearerHeader.split(' ');
   const bearerToken = bearer[1];
   try {
-    const decoded = jwt.verify(bearerToken, 'your_jwt_secret_key');
+    const decoded = jwt.verify(bearerToken, 'Olivia');
     req.user = (decoded as any).user;
     next();
   } catch (err) {
-    res.status(401).json({ message: 'Token is not valid' });
+    return res.status(401).json({ message: 'Token is not valid' });
   }
 }
