@@ -1,6 +1,5 @@
 import { body, validationResult } from "express-validator";
 import { PrismaClient } from "@prisma/client";
-import express from 'express';
 import { Request, Response } from "express";
 
 interface AuthRequest extends Request {
@@ -37,8 +36,20 @@ export const createWorkSpace = [
   }
 ];
 
-export async function getWorkSpace(_req: express.Request, _res: express.Response) {
-  // Do a request with the id of the workspace ( request.workspace_id)
+export async function getWorkSpace(req: Request, res: Response) {
+  const { workspace_id } = req.params;
+
+  if( !Number.isNaN(parseInt(workspace_id))) {
+    const workspace = await prisma.workspace.findUnique({
+      where: { workspace_id: parseInt(workspace_id) }
+    });
+    if (!workspace) {
+      return res.status(404).json({ message: 'Workspace not found', error: true });
+    }
+    return res.status(200).json({ workspace });
+  }
+
+  return res.status(400).json({ message: 'The id is not a number', error: true })
 }
 
 export async function getAllWorkSpaces() {
