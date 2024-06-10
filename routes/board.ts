@@ -5,4 +5,4 @@ const router = express.Router();
 
 router.get('/board/:board_id', getBoard);
 
-export = router;
+export {router as boardRouter};

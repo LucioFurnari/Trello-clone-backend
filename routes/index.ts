@@ -1,5 +1,7 @@
-import  {user} from './user'
+import { userRouter } from './user'
+import { workspaceRouter } from './workspace';
 
 export const index = {
-  user,
+  userRouter,
+  workspaceRouter
 };

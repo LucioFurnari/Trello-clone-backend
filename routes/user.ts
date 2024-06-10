@@ -7,4 +7,5 @@ router.post('/user', createUser);
 router.post('/login', loginUser);
 
 router.post('/session', verifyToken)
-export const user = router;
+
+export {router as userRouter};
