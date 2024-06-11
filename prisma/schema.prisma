@@ -25,6 +25,31 @@ model Workspace {
   workspace_id   Int  @id @default(autoincrement())
   name    String
   description String?
-  author User @relation(fields: [authorId], references: [id])
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId  Int
+  boards Board[]
+}
+
+model Board {
+  board_id   Int @id @default(autoincrement())
+  title   String
+  description   String?
+  workspace Workspace @relation(fields: [workspaceId], references: [workspace_id], onDelete: Cascade)
+  workspaceId   Int
+  lists List[]
+}
+
+model List {
+  list_id   Int @id @default(autoincrement())
+  name String
+  board Board @relation(fields: [boardId], references: [board_id], onDelete: Cascade)
+  boardId Int
+  cards Card[]
+}
+
+model Card {
+  card_id   Int @id @default(autoincrement())
+  title String
+  list List @relation(fields: [listId], references: [list_id], onDelete: Cascade)
+  listId  Int
 }
