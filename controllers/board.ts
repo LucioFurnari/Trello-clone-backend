@@ -36,9 +36,34 @@ export const createBoard = [
   }
 ];
 
-export async function updateBoard() {
-  
-}
+export const updateBoard = [
+  body('title').notEmpty().trim().escape(),
+  body('description').escape(),
+  async (req: Request, res: Response) => {
+    const result = validationResult(req);
+    const { board_id } = req.params;
+    const { title, description } = req.body;
+
+    if (!result.isEmpty()) {
+      return res.status(400).json({ errorList: result.array() });
+    }
+    
+    if (!Number.isNaN(parseInt(board_id))) {
+      const updatedBoard = await prisma.board.update({
+        where: {
+          board_id: parseInt(board_id),
+        },
+        data: {
+          title: title,
+          description: description,
+        }
+      });
+      return res.status(200).json({ message: 'Board updated correctly', updatedBoard });
+    }
+
+    return res.status(400).json({ message: 'The id is not a number', error: true });
+  }
+]
 
 export async function deleteBoard() {
   
