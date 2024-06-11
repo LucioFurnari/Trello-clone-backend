@@ -80,6 +80,20 @@ export const updateWorkspace = [
   }
 ]
 
-export async function deleteWorkSpace() {
-  
+export async function deleteWorkSpace(req: Request, res: Response) {
+  const { workspace_id } = req.params;
+
+  try {
+    if(!Number.isNaN(parseInt(workspace_id))) {
+      const deleteWorkSpace = await prisma.workspace.delete({
+        where: {
+          workspace_id: parseInt(workspace_id),
+        },
+      });
+      return res.status(200).json({ deleteWorkSpace });
+    }
+    return res.status(400).json({ message: 'The id is incorrect', error: true})
+  } catch (error) {
+    return res.status(400).json({ message: error, error: true})
+  }
 }
