@@ -65,6 +65,17 @@ export const updateBoard = [
   }
 ]
 
-export async function deleteBoard() {
-  
+export async function deleteBoard(req: Request, res: Response) {
+  const { board_id } = req.params;
+
+  if(!Number.isNaN(parseInt(board_id))) {
+    const deletedBoard = await prisma.board.delete({
+      where: {
+        board_id: parseInt(board_id),
+      }
+    });
+    return res.status(200).json({ message: 'Board deleted successfully', deletedBoard});
+  }
+
+  return res.status(400).json({ message: 'The id is not a number', error: true });
 }
