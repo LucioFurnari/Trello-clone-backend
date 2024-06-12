@@ -1,11 +1,10 @@
-import express from 'express';
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { body, validationResult } from 'express-validator';
 
 const prisma = new PrismaClient();
 
-export async function getBoard(_req: express.Request, _res: express.Response) {
+export async function getBoard(_req: Request, _res: Response) {
   // Get board from request.board_id
 }
 
