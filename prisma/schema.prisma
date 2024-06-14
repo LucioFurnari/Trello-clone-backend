@@ -16,7 +16,7 @@ datasource db {
 model User {
   id    Int   @id @default(autoincrement())
   name  String
-  email String
+  email   String @unique
   password String
   workspaces Workspace[]
 }
@@ -41,7 +41,8 @@ model Board {
 
 model List {
   list_id   Int @id @default(autoincrement())
-  name String
+  name  String
+  position  Int @default(autoincrement())
   board Board @relation(fields: [boardId], references: [board_id], onDelete: Cascade)
   boardId Int
   cards Card[]
