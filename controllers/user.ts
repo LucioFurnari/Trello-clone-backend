@@ -80,7 +80,7 @@ export const loginUser = [
         const token = jwt.sign({ user: user }, 'Olivia')
         return res.status(200).json({ message: 'User logged', token });
       } else {
-        return res.status(400).json({ message: 'The password is incorrect'});
+        return res.status(401).json({ message: 'The password is incorrect'});
       }
     })
   }
