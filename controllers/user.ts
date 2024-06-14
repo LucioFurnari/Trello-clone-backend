@@ -8,31 +8,37 @@ import express from 'express';
 const prisma = new PrismaClient();
 
 export const createUser = [
-  body('username').notEmpty().trim().escape(),
-  body('email').notEmpty().isEmail().normalizeEmail(),
-  body('password').notEmpty().trim().escape(),
+  body('username').notEmpty().trim().withMessage('The user name is required').escape(),
+  body('email').notEmpty().trim().withMessage('The email is required').isEmail().withMessage('Have to be a valid email'),
+  body('password').notEmpty().trim().withMessage('The password is required').escape(),
   async (req: Request, res: Response) => {
     const { username, email, password} = req.body;
     const result = validationResult(req);
 
-    if (result.isEmpty()) {
-      bcrypt.hash(password, 8, async (_error, hash) => {
-        await prisma.user.create({
-          data: {
-            name: username,
-            email: email,
-            password: hash
-          }
-        })
-      })
+    if (!result.isEmpty()) return res.status(400).json({ error: true, errorList: result.array()});
 
-      return res.status(200).json({
-        message: 'User created!',
-      })
-    }
+    const user = await prisma.user.findUnique({
+      where: {
+        email: req.body.email,
+      }
+    });
 
-    return res.status(400).json({ error: true, errorList: JSON.stringify(result)});
-  },
+    if (user) return res.status(409).json({ message: 'Email already have an account'});
+
+    bcrypt.hash(password, 8, async (_error, hash) => {
+      await prisma.user.create({
+        data: {
+          name: username,
+          email: email,
+          password: hash
+        }
+      })
+    })
+
+    return res.status(200).json({
+      message: 'User created!',
+    })
+  }
 ];
 
 export async function getUser(_req: Request, res: Response) {
@@ -52,33 +58,31 @@ export const loginUser = [
     const { email, password } = req.body;
     const result = validationResult(req);
 
-    if (result.isEmpty()) {
-      const user = await prisma.user.findFirst({
-        where: {
-          email: email
-        }
-      })
-      console.log(user)
-      if (!user) {
-        return res.status(404).json({ message: 'User not found', error: true });
-      }
-      bcrypt.compare(password, user!.password, (err, pass) => {
-        if (err) {
-          // Handle error
-          console.error('Error comparing passwords:', err);
-          return;
-        }
+    if (!result.isEmpty()) return res.status(400).json({ error: true, errorList: result.array()});
 
-        if (pass) {
-          const token = jwt.sign({ user: user }, 'Olivia')
-          return res.status(200).json({ message: 'User logged', token });
-        } else {
-          return res.status(400).json({ message: 'The password is incorrect'});
-        }
-      })
-    } else {
-      return res.status(400).json({ error: true, errorList: result.array()});
+    const user = await prisma.user.findFirst({
+      where: {
+        email: email
+      }
+    })
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found', error: true });
     }
+    bcrypt.compare(password, user!.password, (err, pass) => {
+      if (err) {
+        // Handle error
+        console.error('Error comparing passwords:', err);
+        return;
+      }
+
+      if (pass) {
+        const token = jwt.sign({ user: user }, 'Olivia')
+        return res.status(200).json({ message: 'User logged', token });
+      } else {
+        return res.status(400).json({ message: 'The password is incorrect'});
+      }
+    })
   }
 ]
 
