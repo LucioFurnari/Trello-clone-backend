@@ -87,9 +87,6 @@ export const loginUser = [
   }
 ]
 
-export async function logoutUser() {
-  
-}
 interface AuthRequest extends Request {
   user?: any;
 }
