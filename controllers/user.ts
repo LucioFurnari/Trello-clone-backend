@@ -78,8 +78,18 @@ export const loginUser = [
       }
 
       if (pass) {
-        const token = jwt.sign({ user: user }, SECRET_KEY)
-        return res.status(200).json({ message: 'User logged', token });
+        const token = jwt.sign(
+          { username: user.name, email: user.email, id: user.id },
+          SECRET_KEY,
+          {
+            expiresIn: '1h',
+          }
+        )
+        res.cookie('access_token', token, {
+          httpOnly: true,
+          sameSite: 'strict'
+        });
+        return res.status(200).json({ message: 'User logged' });
       } else {
         return res.status(401).json({ message: 'The password is incorrect'});
       }
@@ -92,17 +102,15 @@ interface AuthRequest extends Request {
 }
 
 export function verifyToken(req: AuthRequest, res: express.Response, next: NextFunction) {
-  const bearerHeader: string | undefined = req.header('Authorization');
+  const token = req.cookies.access_token;
 
-  if(!bearerHeader) {
-    return res.status(401).json({ message: 'No token, authorization denied', error: true });
+  if(!token) {
+    return res.status(401).json({ message: 'Token not found', error: true });
   }
 
-  const bearer = bearerHeader.split(' ');
-  const bearerToken = bearer[1];
   try {
-    const decoded = jwt.verify(bearerToken, SECRET_KEY);
-    req.user = (decoded as any).user;
+    const decoded = jwt.verify(token, SECRET_KEY);
+    req.user = decoded;
     next();
   } catch (err) {
     return res.status(401).json({ message: 'Token is not valid' });
