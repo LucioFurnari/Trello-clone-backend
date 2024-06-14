@@ -6,6 +6,7 @@ import { Request, Response, NextFunction } from "express";
 import express from 'express';
 
 const prisma = new PrismaClient();
+const SECRET_KEY = process.env.DEV_SECRET_KEY;
 
 export const createUser = [
   body('username').notEmpty().trim().withMessage('The user name is required').escape(),
@@ -77,7 +78,7 @@ export const loginUser = [
       }
 
       if (pass) {
-        const token = jwt.sign({ user: user }, 'Olivia')
+        const token = jwt.sign({ user: user }, SECRET_KEY)
         return res.status(200).json({ message: 'User logged', token });
       } else {
         return res.status(401).json({ message: 'The password is incorrect'});
@@ -103,7 +104,7 @@ export function verifyToken(req: AuthRequest, res: express.Response, next: NextF
   const bearer = bearerHeader.split(' ');
   const bearerToken = bearer[1];
   try {
-    const decoded = jwt.verify(bearerToken, 'Olivia');
+    const decoded = jwt.verify(bearerToken, SECRET_KEY);
     req.user = (decoded as any).user;
     next();
   } catch (err) {
