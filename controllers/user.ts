@@ -97,6 +97,11 @@ export const loginUser = [
   }
 ]
 
+export async function logout(_req: Request, res: Response) {
+  res.clearCookie('access_token')
+  return res.json({ message: 'Logout successful'});
+}
+
 interface AuthRequest extends Request {
   user?: any;
 }
