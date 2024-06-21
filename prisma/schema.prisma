@@ -18,16 +18,25 @@ model User {
   name  String
   email   String @unique
   password String
-  workspaces Workspace[]
+  workspaceUsers Workspace_Users[]
 }
 
 model Workspace {
   workspace_id   Int  @id @default(autoincrement())
   name    String
   description String?
-  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  authorId  Int
+  visibility String @default("private")
   boards Board[]
+  workspacesUser Workspace_Users[]
+}
+
+model Workspace_Users {
+  workspace_users_id  Int  @id @default(autoincrement())
+  user_id User @relation(fields: [userId], references: [id])
+  workspace_id Workspace @relation(fields: [workspaceId], references: [workspace_id])
+  role_name  String
+  userId  Int
+  workspaceId Int
 }
 
 model Board {
