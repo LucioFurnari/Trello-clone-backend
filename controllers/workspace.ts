@@ -26,10 +26,16 @@ export const createWorkSpace = [
       const workspace = await prisma.workspace.create({
         data: {
           name: req.body.name,
-          authorId: user.id
         }
       })
-      return res.status(201).json({ message: 'Workspace created', workspace })
+      const workspaceUsers = await prisma.workspace_Users.create({
+        data: {
+          role_name: 'admin',
+          userId: user.id,
+          workspaceId: workspace.workspace_id
+        }
+      });
+      return res.status(201).json({ message: 'Workspace created', workspace, workspaceUsers })
     }
 
     return res.status(400).json({ error: true, errorList: result });
