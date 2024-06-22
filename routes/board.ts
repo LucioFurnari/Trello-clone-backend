@@ -1,7 +1,7 @@
-import express from 'express';
+import { Router } from 'express';
 import { getBoard, createBoard, updateBoard, deleteBoard } from '../controllers/board';
 
-const router = express.Router();
+const router = Router();
 
 router.post('/workspace/:workspace_id/board', createBoard);
 
