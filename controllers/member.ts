@@ -9,7 +9,7 @@ export async function addMember(req: Request, res: Response) {
 
   const addedUser = await prisma.workspace_Users.create({
     data: {
-      role_name: 'normal',
+      is_admin: false,
       userId: user_id,
       workspaceId: parseInt(workspace_id)
     }
