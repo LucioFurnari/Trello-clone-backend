@@ -25,7 +25,10 @@ model Workspace {
   workspace_id   Int  @id @default(autoincrement())
   name    String
   description String?
-  visibility String @default("private")
+  visibility_private  Boolean @default(true)
+  visibility_public  Boolean @default(false)
+  can_edit_admin  Boolean @default(false)
+  can_edit_user Boolean @default(true)
   boards Board[]
   workspacesUser Workspace_Users[]
 }
@@ -34,7 +37,7 @@ model Workspace_Users {
   workspace_users_id  Int  @id @default(autoincrement())
   user_id User @relation(fields: [userId], references: [id])
   workspace_id Workspace @relation(fields: [workspaceId], references: [workspace_id])
-  role_name  String
+  is_admin Boolean @default(true)
   userId  Int
   workspaceId Int
 }
