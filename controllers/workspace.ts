@@ -54,8 +54,16 @@ export async function getWorkSpace(req: AuthRequest, res: Response) {
         return res.status(404).json({ message: 'Workspace not found', error: true });
       }
 
+      const boards = await prisma.board.findMany({
+        where: { workspaceId: parseInt(workspace_id)}
+      })
+
+      if (!boards) {
+        return res.status(404).json({ message: 'Boards not found'});
+      }
+      
       if (workspace.visibility_public) {
-        return res.status(200).json({ workspace });
+        return res.status(200).json({  boards });
       }
 
       if(req.user) {
@@ -66,7 +74,7 @@ export async function getWorkSpace(req: AuthRequest, res: Response) {
           }
         });
         if (workspace.visibility_private && workspaceUser) {
-          return res.status(200).json({ workspace });
+          return res.status(200).json({ boards });
         }
       }
 
