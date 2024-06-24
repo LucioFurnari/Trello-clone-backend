@@ -30,7 +30,6 @@ export const createWorkSpace = [
       })
       const workspaceUsers = await prisma.workspace_Users.create({
         data: {
-          role_name: 'admin',
           userId: user.id,
           workspaceId: workspace.workspace_id
         }
