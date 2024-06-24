@@ -4,7 +4,7 @@ import { createWorkSpace, getWorkSpace, updateWorkspace, deleteWorkSpace } from 
 
 const router = Router();
 
-router.get('/workspace/:workspace_id', getWorkSpace);
+router.get('/workspace/:workspace_id', verifyToken, getWorkSpace);
 
 router.post('/workspace', verifyToken, createWorkSpace);
 
