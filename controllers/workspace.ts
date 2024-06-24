@@ -41,20 +41,43 @@ export const createWorkSpace = [
   }
 ];
 
-export async function getWorkSpace(req: Request, res: Response) {
+export async function getWorkSpace(req: AuthRequest, res: Response) {
   const { workspace_id } = req.params;
 
   if(!Number.isNaN(parseInt(workspace_id))) {
-    const workspace = await prisma.workspace.findUnique({
-      where: { workspace_id: parseInt(workspace_id) }
-    });
-    if (!workspace) {
-      return res.status(404).json({ message: 'Workspace not found', error: true });
-    }
-    return res.status(200).json({ workspace });
-  }
+    try {
+      const workspace = await prisma.workspace.findUnique({
+        where: { workspace_id: parseInt(workspace_id) }
+      });
 
-  return res.status(400).json({ message: 'The id is not a number', error: true })
+      if (!workspace) {
+        return res.status(404).json({ message: 'Workspace not found', error: true });
+      }
+
+      if (workspace.visibility_public) {
+        return res.status(200).json({ workspace });
+      }
+
+      if(req.user) {
+        const workspaceUser = await prisma.workspace_Users.findFirst({
+          where: {
+            userId: parseInt(req.user.id),
+            workspaceId: parseInt(workspace_id)
+          }
+        });
+        if (workspace.visibility_private && workspaceUser) {
+          return res.status(200).json({ workspace });
+        }
+      }
+
+      return res.status(403).json({ message: 'Access denied', error: true });
+    } catch (error) {
+      console.error('Error fetching workspace:', error);
+      return res.status(500).json({ message: 'Internal server error', error: true });
+    }
+  } else {
+    return res.status(400).json({ message: 'The id is not a number', error: true })
+  }
 }
 
 export async function getAllWorkSpaces() {
