@@ -14,55 +14,67 @@ datasource db {
 }
 
 model User {
-  id    Int   @id @default(autoincrement())
-  name  String
-  email   String @unique
-  password String
-  workspaceUsers Workspace_Users[]
+  id             Int                @id @default(autoincrement())
+  name           String
+  email          String             @unique
+  password       String
+  workspaceUsers WorkspaceUsers[]
 }
 
 model Workspace {
-  workspace_id   Int  @id @default(autoincrement())
-  name    String
-  description String?
-  visibility_private  Boolean @default(true)
-  visibility_public  Boolean @default(false)
-  can_edit_admin  Boolean @default(false)
-  can_edit_user Boolean @default(true)
-  boards Board[]
-  workspacesUser Workspace_Users[]
+  workspaceId         Int           @id @default(autoincrement())
+  name                String
+  description         String?
+  visibilityPrivate   Boolean       @default(true)
+  visibilityPublic    Boolean       @default(false)
+  canEditAdmin        Boolean       @default(false)
+  canEditUser         Boolean       @default(true)
+  boards              Board[]
+  workspacesUser      WorkspaceUsers[]
 }
 
-model Workspace_Users {
-  workspace_users_id  Int  @id @default(autoincrement())
-  user_id User @relation(fields: [userId], references: [id])
-  workspace_id Workspace @relation(fields: [workspaceId], references: [workspace_id])
-  is_admin Boolean @default(true)
-  userId  Int
-  workspaceId Int
+model WorkspaceUsers {
+  workspaceUsersId    Int           @id @default(autoincrement())
+  userId              Int           
+  workspaceId         Int
+  is_admin            Boolean       @default(true)
+  user                User          @relation(fields: [userId], references: [id])
+  workspace           Workspace     @relation(fields: [workspaceId], references: [workspaceId])
+
+
+  @@unique([userId, workspaceId])
 }
 
 model Board {
-  board_id   Int @id @default(autoincrement())
-  title   String
-  description   String?
-  workspace Workspace @relation(fields: [workspaceId], references: [workspace_id], onDelete: Cascade)
-  workspaceId   Int
-  lists List[]
+  boardId             Int           @id @default(autoincrement())
+  title               String
+  description         String?
+  workspaceId         Int
+  workspace           Workspace     @relation(fields: [workspaceId], references: [workspaceId], onDelete: Cascade)
+  lists               List[]
+
+
+  @@index([workspaceId])
 }
 
 model List {
-  list_id   Int @id @default(autoincrement())
-  name  String
-  position  Int @default(autoincrement())
-  board Board @relation(fields: [boardId], references: [board_id], onDelete: Cascade)
-  boardId Int
-  cards Card[]
+  listId              Int           @id @default(autoincrement())
+  name                String
+  position            Int           @default(autoincrement())
+  boardId             Int
+  board               Board         @relation(fields: [boardId], references: [boardId], onDelete: Cascade)
+  cards               Card[]
+
+
+  @@index([boardId])
 }
 
 model Card {
-  card_id   Int @id @default(autoincrement())
-  title String
-  list List @relation(fields: [listId], references: [list_id], onDelete: Cascade)
-  listId  Int
+  cardId             Int            @id @default(autoincrement())
+  title               String
+  listId              Int
+  list List @relation(fields: [listId], references: [listId], onDelete: Cascade)
+
+
+  @@index([listId])
 }
