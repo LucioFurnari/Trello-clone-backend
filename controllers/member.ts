@@ -7,7 +7,7 @@ export async function addMember(req: Request, res: Response) {
   const { workspace_id } = req.params;
   const { user_id } = req.body;
 
-  const addedUser = await prisma.workspace_Users.create({
+  const addedUser = await prisma.workspaceUsers.create({
     data: {
       is_admin: false,
       userId: user_id,

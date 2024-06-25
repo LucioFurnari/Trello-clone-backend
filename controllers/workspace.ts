@@ -28,10 +28,10 @@ export const createWorkSpace = [
           name: req.body.name,
         }
       })
-      const workspaceUsers = await prisma.workspace_Users.create({
+      const workspaceUsers = await prisma.workspaceUsers.create({
         data: {
           userId: user.id,
-          workspaceId: workspace.workspace_id
+          workspaceId: workspace.workspaceId
         }
       });
       return res.status(201).json({ message: 'Workspace created', workspace, workspaceUsers })
@@ -47,7 +47,7 @@ export async function getWorkSpace(req: AuthRequest, res: Response) {
   if(!Number.isNaN(parseInt(workspace_id))) {
     try {
       const workspace = await prisma.workspace.findUnique({
-        where: { workspace_id: parseInt(workspace_id) }
+        where: { workspaceId: parseInt(workspace_id) }
       });
 
       if (!workspace) {
@@ -62,18 +62,18 @@ export async function getWorkSpace(req: AuthRequest, res: Response) {
         return res.status(404).json({ message: 'Boards not found'});
       }
       
-      if (workspace.visibility_public) {
+      if (workspace.visibilityPublic) {
         return res.status(200).json({  boards });
       }
 
       if(req.user) {
-        const workspaceUser = await prisma.workspace_Users.findFirst({
+        const workspaceUser = await prisma.workspaceUsers.findFirst({
           where: {
             userId: parseInt(req.user.id),
             workspaceId: parseInt(workspace_id)
           }
         });
-        if (workspace.visibility_private && workspaceUser) {
+        if (workspace.visibilityPrivate && workspaceUser) {
           return res.status(200).json({ boards });
         }
       }
@@ -88,8 +88,17 @@ export async function getWorkSpace(req: AuthRequest, res: Response) {
   }
 }
 
-export async function getAllWorkSpaces() {
-  
+export async function getAllWorkSpaces(req: AuthRequest, res: Response) {
+  const userWithWorkspaces = await prisma.workspaceUsers.findMany({
+    where: {
+      userId: req.user.id
+    },
+    select: {
+      workspaceId: true
+    }
+  })
+
+  return res.json({ userWithWorkspaces })
 }
 
 export const updateWorkspace = [
@@ -105,7 +114,7 @@ export const updateWorkspace = [
 
     if(!Number.isNaN(parseInt(workspace_id))) {
       const updatedWorkspace = await prisma.workspace.update({
-        where: { workspace_id: parseInt(workspace_id) },
+        where: { workspaceId: parseInt(workspace_id) },
         data: { name: name, description: description }
       });
       if(!updateWorkspace) {
@@ -123,7 +132,7 @@ export async function deleteWorkSpace(req: Request, res: Response) {
     if(!Number.isNaN(parseInt(workspace_id))) {
       const deleteWorkSpace = await prisma.workspace.delete({
         where: {
-          workspace_id: parseInt(workspace_id),
+          workspaceId: parseInt(workspace_id),
         },
       });
       return res.status(200).json({ deleteWorkSpace });

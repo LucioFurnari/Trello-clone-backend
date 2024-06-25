@@ -50,7 +50,7 @@ export const updateBoard = [
     if (!Number.isNaN(parseInt(board_id))) {
       const updatedBoard = await prisma.board.update({
         where: {
-          board_id: parseInt(board_id),
+          boardId: parseInt(board_id),
         },
         data: {
           title: title,
@@ -70,7 +70,7 @@ export async function deleteBoard(req: Request, res: Response) {
   if(!Number.isNaN(parseInt(board_id))) {
     const deletedBoard = await prisma.board.delete({
       where: {
-        board_id: parseInt(board_id),
+        boardId: parseInt(board_id),
       }
     });
     return res.status(200).json({ message: 'Board deleted successfully', deletedBoard});

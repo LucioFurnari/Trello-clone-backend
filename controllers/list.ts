@@ -35,7 +35,7 @@ export async function changePosition(req: Request, res: Response) {
 
   const selectedList = await prisma.list.findUnique({
     where: {
-      list_id: parseInt(list_id)
+      listId: parseInt(list_id)
     }
   })
 
@@ -66,7 +66,7 @@ export async function changePosition(req: Request, res: Response) {
   
     const updateListPosition =  prisma.list.update({
       where: {
-        list_id: parseInt(list_id),
+        listId: parseInt(list_id),
       },
       data: {
         position: parseInt(moveTo),
@@ -102,7 +102,7 @@ export async function changePosition(req: Request, res: Response) {
   
     const updateListPosition =  prisma.list.update({
       where: {
-        list_id: parseInt(list_id),
+        listId: parseInt(list_id),
       },
       data: {
         position: parseInt(moveTo),
