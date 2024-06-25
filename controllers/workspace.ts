@@ -26,6 +26,7 @@ export const createWorkSpace = [
       const workspace = await prisma.workspace.create({
         data: {
           name: req.body.name,
+          description: req.body.description
         }
       })
       const workspaceUsers = await prisma.workspaceUsers.create({
