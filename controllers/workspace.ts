@@ -90,16 +90,21 @@ export async function getWorkSpace(req: AuthRequest, res: Response) {
 }
 
 export async function getAllWorkSpaces(req: AuthRequest, res: Response) {
-  const userWithWorkspaces = await prisma.workspaceUsers.findMany({
-    where: {
-      userId: req.user.id
-    },
-    select: {
-      workspaceId: true
-    }
-  })
-
-  return res.json({ userWithWorkspaces })
+  try {
+    const workspaces = await prisma.workspaceUsers.findMany({
+      where: {
+        userId: req.user.id
+      },
+      select: {
+        workspace: true
+      }
+    })
+  
+    return res.status(200).json({ workspaces })
+  } catch (error) {
+    console.error('Error fetching workspace:', error);
+    return res.status(500).json({ message: 'Internal server error', error: true });
+  }
 }
 
 export const updateWorkspace = [
