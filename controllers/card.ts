@@ -1,11 +1,14 @@
-import express from 'express';
+import { Request, Response } from 'express';
+import { body, validationResult } from 'express-validator';
 
-export async function getCard(_req: express.Request, _res: express.Response) {
+export async function getCard(_req: Request, _res: Response) {
   // Get card 
 }
 
-export async function createCard() {
-  // Create new card
+export async function createCard(req: Request, res: Response) {
+  const { title, description, startDate, dueDate } = req.body;
+
+  
 }
 
 export async function updateCard() {
