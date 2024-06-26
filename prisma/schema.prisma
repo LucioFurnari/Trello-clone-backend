@@ -70,10 +70,15 @@ model List {
 }
 
 model Card {
-  cardId             Int            @id @default(autoincrement())
+  cardId              Int           @id @default(autoincrement())
   title               String
+  description         String?
+  coverColor          String?
+  coverImage          String?
+  startDate           DateTime?      @db.Date
+  dueDate             DateTime?
   listId              Int
-  list List @relation(fields: [listId], references: [listId], onDelete: Cascade)
+  list                List          @relation(fields: [listId], references: [listId], onDelete: Cascade)
 
 
   @@index([listId])
