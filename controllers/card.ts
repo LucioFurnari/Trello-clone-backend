@@ -49,9 +49,36 @@ export const createCard = [
   }
 ];
 
-export async function updateCard() {
-  // Update card
-}
+export const updateCard = [
+  body('title').notEmpty().trim().escape(),
+  body('description').trim().escape(),
+  async (req: Request, res: Response) => {
+    const { title, description, startDate, dueDate, coverColor, coverImage } = req.body;
+    const { cardId } = req.params;
+
+    try {
+      const card = await prisma.card.update({
+        where: {
+          cardId: parseInt(cardId)
+        },
+        data: {
+          title: title,
+          description: description,
+          startDate: startDate,
+          dueDate: dueDate,
+          coverColor: coverColor,
+          coverImage: coverImage
+        }
+      });
+
+      if (!card) return res.status(404).json({ message: 'Card not found', error: true });
+
+    } catch (error) {
+      console.error('Error fetching workspace:', error);
+      return res.status(500).json({ message: 'Internal server error', error: true });
+    }
+  }
+];
 
 export async function deleteCard(req: Request, res: Response) {
   const { cardId } = req.params;
