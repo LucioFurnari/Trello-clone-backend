@@ -3,12 +3,12 @@ import { getBoard, createBoard, updateBoard, deleteBoard } from '../controllers/
 
 const router = Router();
 
-router.post('/workspace/:workspace_id/board', createBoard);
+router.post('/workspace/:workspaceId/board', createBoard);
 
-router.get('/board/:board_id', getBoard);
+router.get('/board/:boardId', getBoard);
 
-router.put('/board/:board_id', updateBoard);
+router.put('/board/:boardId', updateBoard);
 
-router.delete('/board/:board_id', deleteBoard);
+router.delete('/board/:boardId', deleteBoard);
 
 export {router as boardRouter};
