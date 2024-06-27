@@ -53,6 +53,21 @@ export async function updateCard() {
   // Update card
 }
 
-export async function deleteCard() {
-  // Delete card
+export async function deleteCard(req: Request, res: Response) {
+  const { cardId } = req.params;
+
+  try {
+    const card = await prisma.card.delete({
+      where: {
+        cardId: parseInt(cardId)
+      }
+    });
+  
+    if (!card) return res.status(404).json({ message: 'Card not found' });
+  
+    return res.status(200).json({ message: 'Card deleted', card })
+  } catch (error) {
+    console.error('Error fetching workspace:', error);
+    return res.status(500).json({ message: 'Internal server error', error: true });
+  }
 }
