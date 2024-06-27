@@ -4,13 +4,29 @@ import { body, validationResult } from 'express-validator';
 
 const prisma = new PrismaClient();
 
-export async function getBoard(req: Request, _res: Response) {
+export async function getBoard(req: Request, res: Response) {
   const { boardId } = req.params;
-  const board = await prisma.board.findUnique({
-    where: {
-      boardId: parseInt(boardId)
-    }
-  })
+  
+  try {
+    const board = await prisma.board.findUnique({
+      where: { boardId: parseInt(boardId) }
+    });
+  
+    if (!board) return res.status(404).json({ message: 'Board not found', error: true});
+  
+    const lists = await prisma.list.findMany({
+      where: {
+        boardId: parseInt(boardId)
+      },
+      include: {
+        cards: true,
+      }
+    })
+  
+    return res.status(302).json(lists)
+  } catch (error) {
+    
+  }
 }
 
 export const createBoard = [
