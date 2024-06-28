@@ -4,8 +4,23 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function getCard(_req: Request, _res: Response) {
-  // Get card 
+export async function getCard(req: Request, res: Response) {
+  const { cardId } = req.params;
+
+  try {
+    const card = await prisma.card.findUnique({
+      where: {
+        cardId: parseInt(cardId)
+      }
+    });
+
+    if (!card) return res.status(404).json({ message: 'Card not found', error: true });
+
+    return res.status(200).json({ message: 'Card found', card });
+  } catch (error) {
+    console.error('Error fetching workspace:', error);
+    return res.status(500).json({ message: 'Internal server error', error: true });
+  }
 }
 
 export const createCard = [
