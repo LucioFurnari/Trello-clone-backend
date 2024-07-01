@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { Request, Response, NextFunction } from "express";
 import express from 'express';
+import { AuthRequest, JwtPayload } from "../types/interfaces";
 
 const prisma = new PrismaClient();
 const SECRET_KEY = process.env.DEV_SECRET_KEY;
@@ -102,10 +103,6 @@ export async function logout(_req: Request, res: Response) {
   return res.json({ message: 'Logout successful'});
 }
 
-interface AuthRequest extends Request {
-  user?: any;
-}
-
 export function verifyToken(req: AuthRequest, res: express.Response, next: NextFunction) {
   const token = req.cookies.access_token;
 
@@ -115,7 +112,7 @@ export function verifyToken(req: AuthRequest, res: express.Response, next: NextF
 
   try {
     const decoded = jwt.verify(token, SECRET_KEY);
-    req.user = decoded;
+    req.user = decoded as JwtPayload;
     next();
   } catch (err) {
     return res.status(401).json({ message: 'Token is not valid' });
