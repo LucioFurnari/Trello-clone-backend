@@ -75,6 +75,9 @@ export const updateCard = [
     const { title, description, startDate, dueDate, coverColor, coverImage } = req.body;
     const { cardId } = req.params;
 
+    const startDateObject = parse(startDate, 'MM/dd/yyyy', new Date());
+    const dueDateObject = parse(dueDate, 'MM/dd/yyyy hh:mm a', new Date());
+
     try {
       const card = await prisma.card.update({
         where: {
@@ -83,8 +86,8 @@ export const updateCard = [
         data: {
           title: title,
           description: description,
-          startDate: startDate,
-          dueDate: dueDate,
+          startDate: startDateObject,
+          dueDate: dueDateObject,
           coverColor: coverColor,
           coverImage: coverImage
         }
