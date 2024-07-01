@@ -1,10 +1,7 @@
 import { body, validationResult } from "express-validator";
 import { PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
-
-interface AuthRequest extends Request {
-  user?: any;
-}
+import { AuthRequest } from "../types/interfaces";
 
 const prisma = new PrismaClient();
 
@@ -12,11 +9,13 @@ export const createWorkSpace = [
   body('name').notEmpty().trim().escape(),
   async (req: AuthRequest, res: Response) => { 
     const result = validationResult(req);
+    const { name, description } = req.body;
+    const { id } = req.user;
 
     if (result.isEmpty()) {
       const user = await prisma.user.findUnique({
         where: {
-          id: req.user.id,
+          id: id,
         }
       })
       if(!user) {
@@ -25,13 +24,13 @@ export const createWorkSpace = [
 
       const workspace = await prisma.workspace.create({
         data: {
-          name: req.body.name,
-          description: req.body.description
+          name: name,
+          description: description
         }
       })
       const workspaceUsers = await prisma.workspaceUsers.create({
         data: {
-          userId: user.id,
+          userId: id,
           workspaceId: workspace.workspaceId
         }
       });
@@ -44,6 +43,7 @@ export const createWorkSpace = [
 
 export async function getWorkSpace(req: AuthRequest, res: Response) {
   const { workspace_id } = req.params;
+  const { id } = req.user;
 
   if(!Number.isNaN(parseInt(workspace_id))) {
     try {
@@ -70,7 +70,7 @@ export async function getWorkSpace(req: AuthRequest, res: Response) {
       if(req.user) {
         const workspaceUser = await prisma.workspaceUsers.findFirst({
           where: {
-            userId: parseInt(req.user.id),
+            userId: id,
             workspaceId: parseInt(workspace_id)
           }
         });
@@ -90,10 +90,12 @@ export async function getWorkSpace(req: AuthRequest, res: Response) {
 }
 
 export async function getAllWorkSpaces(req: AuthRequest, res: Response) {
+  const { id } = req.user;
+
   try {
     const workspaces = await prisma.workspaceUsers.findMany({
       where: {
-        userId: req.user.id
+        userId: id
       },
       select: {
         workspace: true
