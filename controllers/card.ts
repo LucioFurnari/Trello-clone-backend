@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import { PrismaClient } from '@prisma/client';
+import { parse } from 'date-fns';
 
 const prisma = new PrismaClient();
 
@@ -44,13 +45,16 @@ export const createCard = [
 
     if (!list) return res.status(404).json({ message: 'List not found', error: true});
 
+    const startDateObject = parse(startDate, 'MM/dd/yyyy', new Date());
+    const dueDateObject = parse(dueDate, 'MM/dd/yyyy hh:mm a', new Date());
+
     const card = await prisma.card.create({
       data: {
         title: title,
         listId: parseInt(listId),
         description: description,
-        startDate: startDate,
-        dueDate: dueDate,
+        startDate: startDateObject,
+        dueDate: dueDateObject,
         coverColor: coverColor,
         coverImage: coverImage
       }
