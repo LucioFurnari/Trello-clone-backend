@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { body, validationResult } from 'express-validator';
+import { toNewBoardEntry } from '../types/utils';
 
 const prisma = new PrismaClient();
 
@@ -9,14 +10,14 @@ export async function getBoard(req: Request, res: Response) {
   
   try {
     const board = await prisma.board.findUnique({
-      where: { boardId: parseInt(boardId) }
+      where: { boardId: Number(boardId) }
     });
   
     if (!board) return res.status(404).json({ message: 'Board not found', error: true});
   
     const lists = await prisma.list.findMany({
       where: {
-        boardId: parseInt(boardId)
+        boardId: Number(boardId)
       },
       include: {
         cards: true,
@@ -34,16 +35,16 @@ export const createBoard = [
   body('description').escape(),
   async (req: Request, res: Response) => {
     const result = validationResult(req);
-    const { title,  description } = req.body;
     const { workspaceId } = req.params;
+
+    const newBoard = toNewBoardEntry(req.body);
 
     if(result.isEmpty()) {
       try {
         const board = await prisma.board.create({
           data: {
-            title: title,
-            description: description,
-            workspaceId: parseInt(workspaceId)
+            ...newBoard,
+            workspaceId: Number(workspaceId)
           }
         });
         return res.status(200).json({ board });
@@ -68,7 +69,7 @@ export const updateBoard = [
       return res.status(400).json({ errorList: result.array() });
     }
     
-    if (!Number.isNaN(parseInt(boardId))) {
+    if (!Number.isNaN(Number(boardId))) {
       const updatedBoard = await prisma.board.update({
         where: {
           boardId: parseInt(boardId),
@@ -91,7 +92,7 @@ export async function deleteBoard(req: Request, res: Response) {
   if(!Number.isNaN(parseInt(boardId))) {
     const deletedBoard = await prisma.board.delete({
       where: {
-        boardId: parseInt(boardId),
+        boardId: Number(boardId),
       }
     });
     return res.status(200).json({ message: 'Board deleted successfully', deletedBoard});
