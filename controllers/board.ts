@@ -10,50 +10,50 @@ export async function getBoard(req: Request, res: Response) {
   
   try {
     const board = await prisma.board.findUnique({
-      where: { boardId: Number(boardId) }
+      where: { boardId: Number(boardId) },
+      include: {
+        lists: {
+          include: {
+            cards: true,
+          }
+        },
+      }
     });
   
     if (!board) return res.status(404).json({ message: 'Board not found', error: true});
-  
-    const lists = await prisma.list.findMany({
-      where: {
-        boardId: Number(boardId)
-      },
-      include: {
-        cards: true,
-      }
-    })
-  
-    return res.status(302).json(lists)
-  } catch (error) {
     
+    return res.status(302).json(board);
+  } catch (error) {
+    console.error('Error getting board', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 }
 
 export const createBoard = [
-  body('title').notEmpty().trim().escape(),
-  body('description').escape(),
+  body('title').notEmpty().withMessage('Title is required').trim().escape(),
+  body('description').optional().trim().escape(),
   async (req: Request, res: Response) => {
     const result = validationResult(req);
     const { workspaceId } = req.params;
 
     const newBoard = toNewBoardEntry(req.body);
 
-    if(result.isEmpty()) {
-      try {
-        const board = await prisma.board.create({
-          data: {
-            ...newBoard,
-            workspaceId: Number(workspaceId)
-          }
-        });
-        return res.status(200).json({ board });
-      } catch (error) {
-        return res.status(400).json({ error });
-      }
+    if(!result.isEmpty()) {
+      return res.status(400).json({ errorList: result.array() });
     }
 
-    return res.status(400).json({ errorList: result.array() });
+    try {
+      const board = await prisma.board.create({
+        data: {
+          ...newBoard,
+          workspaceId: Number(workspaceId)
+        }
+      });
+      return res.status(201).json({ board });
+    } catch (error) {
+      console.error('Error creating board', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
   }
 ];
 
@@ -63,7 +63,8 @@ export const updateBoard = [
   async (req: Request, res: Response) => {
     const result = validationResult(req);
     const { boardId } = req.params;
-    const { title, description } = req.body;
+    
+    const newBoard = toNewBoardEntry(req.body);
 
     if (!result.isEmpty()) {
       return res.status(400).json({ errorList: result.array() });
@@ -75,8 +76,7 @@ export const updateBoard = [
           boardId: parseInt(boardId),
         },
         data: {
-          title: title,
-          description: description,
+          ...newBoard,
         }
       });
       return res.status(200).json({ message: 'Board updated correctly', updatedBoard });
@@ -89,7 +89,7 @@ export const updateBoard = [
 export async function deleteBoard(req: Request, res: Response) {
   const { boardId } = req.params;
 
-  if(!Number.isNaN(parseInt(boardId))) {
+  if(!Number.isNaN(Number(boardId))) {
     const deletedBoard = await prisma.board.delete({
       where: {
         boardId: Number(boardId),
