@@ -95,8 +95,32 @@ export const createCard = [
 ];
 
 export const updateCard = [
-  body('title').notEmpty().trim().escape(),
-  body('description').optional().trim().escape(),
+  body('title').trim().notEmpty().withMessage('Title is required').escape(),
+  body('description').optional().trim().escape()
+    .customSanitizer(value => {
+      if (!value) return null; // Handle empty string and falsy values
+      return value;
+    }),
+  body('coverColor').optional().trim().escape()
+    .customSanitizer(value => {
+      if (!value) return null; // Handle empty string and falsy values
+      return value;
+    }),
+  body('coverImage').optional().trim().escape()
+    .customSanitizer(value => {
+      if (!value) return null; // Handle empty string and falsy values
+      return value;
+    }),
+  body('startDate').optional().trim()
+    .customSanitizer(value => {
+      if (!value) return null; // Handle empty string and falsy values
+      return value;
+    }),
+  body('dueDate').optional().trim()
+    .customSanitizer(value => {
+      if (!value) return null; // Handle empty string and falsy values
+      return value;
+    }),
   async (req: Request, res: Response) => {
     const { title, description, startDate, dueDate, coverColor, coverImage } = req.body;
     const { cardId } = req.params;
