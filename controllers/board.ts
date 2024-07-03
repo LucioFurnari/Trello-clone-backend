@@ -30,8 +30,12 @@ export async function getBoard(req: Request, res: Response) {
 }
 
 export const createBoard = [
-  body('title').notEmpty().withMessage('Title is required').trim().escape(),
-  body('description').optional().trim().escape(),
+  body('title').trim().notEmpty().withMessage('Title is required').escape(),
+  body('description').optional().trim().escape()
+    .customSanitizer(value => {
+      if (!value) return null; // Handle empty string and falsy values
+      return value;
+    }),
   async (req: Request, res: Response) => {
     const result = validationResult(req);
     const { workspaceId } = req.params;
@@ -59,7 +63,7 @@ export const createBoard = [
 
 export const updateBoard = [
   body('title').notEmpty().trim().escape(),
-  body('description').escape(),
+  body('description').optional().trim().escape(),
   async (req: Request, res: Response) => {
     const result = validationResult(req);
     const { boardId } = req.params;
