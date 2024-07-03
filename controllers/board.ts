@@ -93,14 +93,23 @@ export const updateBoard = [
 export async function deleteBoard(req: Request, res: Response) {
   const { boardId } = req.params;
 
-  if(!Number.isNaN(Number(boardId))) {
-    const deletedBoard = await prisma.board.delete({
-      where: {
-        boardId: Number(boardId),
-      }
-    });
-    return res.status(200).json({ message: 'Board deleted successfully', deletedBoard});
-  }
+  try {
+    if(!Number.isNaN(Number(boardId))) {
+      const deletedBoard = await prisma.board.delete({
+        where: {
+          boardId: Number(boardId),
+        }
+      });
 
-  return res.status(400).json({ message: 'The id is not a number', error: true });
+      if (!deleteBoard) {
+        return res.status(404).json({ message: 'Board not found', error: true });
+      }
+      return res.status(200).json({ message: 'Board deleted successfully', deletedBoard});
+    }
+
+    return res.status(400).json({ message: 'The id is not a number', error: true });
+  } catch (error) {
+    console.error('Error updating board', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
 }
