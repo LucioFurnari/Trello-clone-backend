@@ -69,20 +69,24 @@ export const updateBoard = [
     if (!result.isEmpty()) {
       return res.status(400).json({ errorList: result.array() });
     }
-    
-    if (!Number.isNaN(Number(boardId))) {
-      const updatedBoard = await prisma.board.update({
-        where: {
-          boardId: parseInt(boardId),
-        },
-        data: {
-          ...newBoard,
-        }
-      });
-      return res.status(200).json({ message: 'Board updated correctly', updatedBoard });
-    }
+    try {
+      if (!Number.isNaN(Number(boardId))) {
+        const updatedBoard = await prisma.board.update({
+          where: {
+            boardId: parseInt(boardId),
+          },
+          data: {
+            ...newBoard,
+          }
+        });
+        return res.status(200).json({ message: 'Board updated correctly', updatedBoard });
+      }
 
-    return res.status(400).json({ message: 'The id is not a number', error: true });
+      return res.status(400).json({ message: 'The id is not a number', error: true });
+    } catch (error) {
+      console.error('Error updating board', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
   }
 ]
 
