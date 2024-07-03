@@ -54,8 +54,8 @@ export async function updateUserData() {
 }
 
 export const loginUser = [
-  body('email').notEmpty().trim().isEmail(),
-  body('password').notEmpty().trim().escape(),
+  body('email').trim().notEmpty().withMessage('The user email is required').isEmail().withMessage('The email is not valid'),
+  body('password').trim().notEmpty().withMessage('The user password is required').escape(),
   async (req: Request, res: Response) => { 
     const { email, password } = req.body;
     const result = validationResult(req);
