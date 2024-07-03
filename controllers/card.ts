@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import { PrismaClient } from '@prisma/client';
 import { parse } from 'date-fns';
+import { toNewCardEntry } from '../types/utils';
 
 const prisma = new PrismaClient();
 
@@ -26,7 +27,31 @@ export async function getCard(req: Request, res: Response) {
 
 export const createCard = [
   body('title').notEmpty().trim().escape(),
-  body('description').trim().escape(),
+  body('description').optional().trim().escape()
+    .customSanitizer(value => {
+      if (!value) return null; // Handle empty string and falsy values
+      return value;
+    }),
+  body('coverColor').optional().trim().escape()
+    .customSanitizer(value => {
+      if (!value) return null; // Handle empty string and falsy values
+      return value;
+    }),
+  body('coverImage').optional().trim().escape()
+    .customSanitizer(value => {
+      if (!value) return null; // Handle empty string and falsy values
+      return value;
+    }),
+  body('startDate').optional().trim()
+    .customSanitizer(value => {
+      if (!value) return null; // Handle empty string and falsy values
+      return value;
+    }),
+  body('dueDate').optional().trim()
+    .customSanitizer(value => {
+      if (!value) return null; // Handle empty string and falsy values
+      return value;
+    }),
   async (req: Request, res: Response) => {
     const { title, description, startDate, dueDate, coverColor, coverImage } = req.body;
     const { listId } = req.params;
@@ -47,6 +72,7 @@ export const createCard = [
 
     const startDateObject = parse(startDate, 'MM/dd/yyyy', new Date());
     const dueDateObject = parse(dueDate, 'MM/dd/yyyy hh:mm a', new Date());
+    const newCard = toNewCardEntry(req.body, startDateObject, dueDateObject);
 
     const card = await prisma.card.create({
       data: {
@@ -70,7 +96,7 @@ export const createCard = [
 
 export const updateCard = [
   body('title').notEmpty().trim().escape(),
-  body('description').trim().escape(),
+  body('description').optional().trim().escape(),
   async (req: Request, res: Response) => {
     const { title, description, startDate, dueDate, coverColor, coverImage } = req.body;
     const { cardId } = req.params;
