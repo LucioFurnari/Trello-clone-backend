@@ -26,7 +26,7 @@ export async function getCard(req: Request, res: Response) {
 }
 
 export const createCard = [
-  body('title').notEmpty().trim().escape(),
+  body('title').trim().notEmpty().withMessage('Title is required').escape(),
   body('description').optional().trim().escape()
     .customSanitizer(value => {
       if (!value) return null; // Handle empty string and falsy values
