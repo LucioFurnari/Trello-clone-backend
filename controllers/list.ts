@@ -5,7 +5,7 @@ import { body, validationResult } from "express-validator";
 const prisma = new PrismaClient();
 
 export const createList = [
-  body('name').notEmpty().trim().escape(),
+  body('name').trim().notEmpty().withMessage('Name is required').escape(),
   async (req: Request, res: Response) => {
     const result = validationResult(req);
     const { board_id } = req.params;
