@@ -6,7 +6,7 @@ import { AuthRequest } from "../types/interfaces";
 const prisma = new PrismaClient();
 
 export const createWorkSpace = [
-  body('name').notEmpty().trim().escape(),
+  body('name').trim().notEmpty().withMessage('The name is required').escape(),
   async (req: AuthRequest, res: Response) => { 
     const result = validationResult(req);
     const { name, description } = req.body;
@@ -110,7 +110,7 @@ export async function getAllWorkSpaces(req: AuthRequest, res: Response) {
 }
 
 export const updateWorkspace = [
-  body('name').notEmpty().trim().escape(),
+  body('name').trim().notEmpty().withMessage('The name is required').escape(),
   async (req: Request, res: Response) => {
     const result = validationResult(req);
     const { workspace_id } = req.params;
