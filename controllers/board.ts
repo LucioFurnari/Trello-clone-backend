@@ -62,8 +62,12 @@ export const createBoard = [
 ];
 
 export const updateBoard = [
-  body('title').notEmpty().trim().escape(),
-  body('description').optional().trim().escape(),
+  body('title').trim().notEmpty().withMessage('Title is required').escape(),
+  body('description').optional().trim().escape()
+    .customSanitizer(value => {
+      if (!value) return null; // Handle empty string and falsy values
+      return value;
+    }),
   async (req: Request, res: Response) => {
     const result = validationResult(req);
     const { boardId } = req.params;
