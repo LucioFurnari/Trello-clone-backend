@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import prisma from '../models/prismaClient';
 import { parse } from 'date-fns';
-import { toNewCardEntry } from '../types/utils';
+import { NewCardEntry } from '../interfaces';
 
 
 export async function getCard(req: Request, res: Response) {
@@ -51,7 +51,7 @@ export const createCard = [
       if (!value) return null; // Handle empty string and falsy values
       return value;
     }),
-  async (req: Request, res: Response) => {
+  async (req: Request<{listId: string},{},NewCardEntry>, res: Response) => {
     const { title, description, startDate, dueDate, coverColor, coverImage } = req.body;
     const { listId } = req.params;
 
@@ -71,7 +71,6 @@ export const createCard = [
 
     const startDateObject = parse(startDate, 'MM/dd/yyyy', new Date());
     const dueDateObject = parse(dueDate, 'MM/dd/yyyy hh:mm a', new Date());
-    const newCard = toNewCardEntry(req.body, startDateObject, dueDateObject);
 
     const card = await prisma.card.create({
       data: {
@@ -120,7 +119,7 @@ export const updateCard = [
       if (!value) return null; // Handle empty string and falsy values
       return value;
     }),
-  async (req: Request, res: Response) => {
+  async (req: Request<{cardId: string},{},NewCardEntry>, res: Response) => {
     const { title, description, startDate, dueDate, coverColor, coverImage } = req.body;
     const { cardId } = req.params;
 
