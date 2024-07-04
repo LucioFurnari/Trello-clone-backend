@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { Request, Response, NextFunction } from "express";
 import express from 'express';
-import { AuthRequest, JwtPayload } from "../types/interfaces";
+import { AuthRequest, JwtPayload } from "../interfaces";
 
 const SECRET_KEY = process.env.DEV_SECRET_KEY;
 
