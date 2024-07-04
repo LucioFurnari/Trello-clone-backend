@@ -1,7 +1,7 @@
 import { body, validationResult } from "express-validator";
 import prisma from "../models/prismaClient";
 import { Request, Response } from "express";
-import { AuthRequest } from "../types/interfaces";
+import { AuthRequest } from "../interfaces";
 
 
 export const createWorkSpace = [
