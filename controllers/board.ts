@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import prisma from '../models/prismaClient';
 import { body, validationResult } from 'express-validator';
-import { toNewBoardEntry, NewBoardEntry } from '../types/utils';
+import { NewBoardEntry } from '../interfaces';
 
 
 export async function getBoard(req: Request, res: Response) {
@@ -37,9 +37,9 @@ export const createBoard = [
     }),
   async (req: Request<{workspaceId: string},{},NewBoardEntry>, res: Response) => {
     const result = validationResult(req);
+    const { title, description, coverImage, coverColor} = req.body;
     const { workspaceId } = req.params;
 
-    const newBoard = toNewBoardEntry(req.body);
 
     if(!result.isEmpty()) {
       return res.status(400).json({ errorList: result.array() });
@@ -48,7 +48,10 @@ export const createBoard = [
     try {
       const board = await prisma.board.create({
         data: {
-          ...newBoard,
+          title,
+          description,
+          coverImage,
+          coverColor,
           workspaceId: Number(workspaceId)
         }
       });
@@ -67,11 +70,11 @@ export const updateBoard = [
       if (!value) return null; // Handle empty string and falsy values
       return value;
     }),
-  async (req: Request, res: Response) => {
+  async (req: Request<{boardId: string},{},NewBoardEntry>, res: Response) => {
     const result = validationResult(req);
+    const { title, description, coverImage, coverColor} = req.body;
     const { boardId } = req.params;
     
-    const newBoard = toNewBoardEntry(req.body);
 
     if (!result.isEmpty()) {
       return res.status(400).json({ errorList: result.array() });
@@ -83,7 +86,10 @@ export const updateBoard = [
             boardId: parseInt(boardId),
           },
           data: {
-            ...newBoard,
+            title,
+            description,
+            coverImage,
+            coverColor,
           }
         });
         return res.status(200).json({ message: 'Board updated correctly', updatedBoard });
