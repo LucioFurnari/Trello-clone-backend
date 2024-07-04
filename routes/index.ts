@@ -4,6 +4,7 @@ import { boardRouter } from './board';
 import { listRouter } from './list';
 import { memberRouter } from './member';
 import { cardRouter } from './card';
+import { unsplashRouter } from './unsplash';
 
 export const index = {
   userRouter,
@@ -11,5 +12,6 @@ export const index = {
   boardRouter,
   listRouter,
   memberRouter,
-  cardRouter
+  cardRouter,
+  unsplashRouter
 };
