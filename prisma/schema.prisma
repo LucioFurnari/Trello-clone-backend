@@ -49,6 +49,8 @@ model Board {
   boardId             Int           @id @default(autoincrement())
   title               String
   description         String?
+  coverColor          String?
+  coverImage          String?
   workspaceId         Int
   workspace           Workspace     @relation(fields: [workspaceId], references: [workspaceId], onDelete: Cascade)
   lists               List[]
