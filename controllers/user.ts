@@ -1,12 +1,11 @@
 import { body, validationResult } from "express-validator";
-import { PrismaClient } from "@prisma/client";
+import prisma from "../models/prismaClient";
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { Request, Response, NextFunction } from "express";
 import express from 'express';
 import { AuthRequest, JwtPayload } from "../types/interfaces";
 
-const prisma = new PrismaClient();
 const SECRET_KEY = process.env.DEV_SECRET_KEY;
 
 export const createUser = [

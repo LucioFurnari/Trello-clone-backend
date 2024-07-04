@@ -1,9 +1,8 @@
 import { body, validationResult } from "express-validator";
-import { PrismaClient } from "@prisma/client";
+import prisma from "../models/prismaClient";
 import { Request, Response } from "express";
 import { AuthRequest } from "../types/interfaces";
 
-const prisma = new PrismaClient();
 
 export const createWorkSpace = [
   body('name').trim().notEmpty().withMessage('The name is required').escape(),

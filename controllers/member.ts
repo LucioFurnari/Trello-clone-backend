@@ -1,7 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import prisma from "../models/prismaClient";
 import { Request, Response } from "express";
 
-const prisma = new PrismaClient();
 
 export async function addMember(req: Request, res: Response) {
   const { workspace_id } = req.params;

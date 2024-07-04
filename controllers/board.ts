@@ -1,9 +1,8 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../models/prismaClient';
 import { body, validationResult } from 'express-validator';
-import { toNewBoardEntry } from '../types/utils';
+import { toNewBoardEntry, NewBoardEntry } from '../types/utils';
 
-const prisma = new PrismaClient();
 
 export async function getBoard(req: Request, res: Response) {
   const { boardId } = req.params;
@@ -36,7 +35,7 @@ export const createBoard = [
       if (!value) return null; // Handle empty string and falsy values
       return value;
     }),
-  async (req: Request, res: Response) => {
+  async (req: Request<{workspaceId: string},{},NewBoardEntry>, res: Response) => {
     const result = validationResult(req);
     const { workspaceId } = req.params;
 

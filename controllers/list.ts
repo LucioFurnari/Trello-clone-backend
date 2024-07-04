@@ -1,8 +1,7 @@
 import { Request, Response } from "express";
-import { PrismaClient } from "@prisma/client";
+import prisma from "../models/prismaClient";
 import { body, validationResult } from "express-validator";
 
-const prisma = new PrismaClient();
 
 export const createList = [
   body('name').trim().notEmpty().withMessage('Name is required').escape(),

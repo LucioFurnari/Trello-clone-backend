@@ -1,10 +1,9 @@
 import { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../models/prismaClient';
 import { parse } from 'date-fns';
 import { toNewCardEntry } from '../types/utils';
 
-const prisma = new PrismaClient();
 
 export async function getCard(req: Request, res: Response) {
   const { cardId } = req.params;
