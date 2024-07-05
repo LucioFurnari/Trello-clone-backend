@@ -1,11 +1,12 @@
 import { Request } from "express"
 
-export interface AuthRequest extends Request {
+export interface AuthRequest<T = any> extends Request {
   user?: {
     username: string,
     email: string, 
     id: number
-  }
+  },
+  body: T
 }
 
 export interface JwtPayload {
@@ -34,4 +35,9 @@ export interface UserEntry {
   username: string,
   email: string,
   password: string
+}
+
+export interface WorkspaceEntry {
+  name: string,
+  description: string
 }
