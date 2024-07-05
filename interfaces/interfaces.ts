@@ -25,3 +25,7 @@ export interface NewCardEntry extends NewBoardEntry {
   startDate: string,
   dueDate: string,
 }
+
+export interface NewListEntry {
+  name: string
+}
