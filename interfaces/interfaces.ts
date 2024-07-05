@@ -29,3 +29,9 @@ export interface NewCardEntry extends NewBoardEntry {
 export interface NewListEntry {
   name: string
 }
+
+export interface UserEntry {
+  username: string,
+  email: string,
+  password: string
+}
