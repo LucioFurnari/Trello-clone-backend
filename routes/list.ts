@@ -3,8 +3,8 @@ import { createList, changePosition } from "../controllers/list";
 
 const router = Router();
 
-router.post('/board/:board_id/list', createList);
+router.post('/board/:boardId/list', createList);
 
-router.put('/board/:board_id/list/:list_id', changePosition)
+router.put('/board/:boardId/list/:listId', changePosition)
 
 export { router as listRouter }
