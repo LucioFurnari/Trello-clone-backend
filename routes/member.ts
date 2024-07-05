@@ -3,6 +3,6 @@ import { addMember } from "../controllers/member";
 
 const router = Router();
 
-router.post('/workspace/:workspace_id/member', addMember);
+router.post('/workspace/:workspaceId/member', addMember);
 
 export { router as memberRouter }
