@@ -1,24 +1,25 @@
 import { Request, Response } from "express";
 import prisma from "../models/prismaClient";
 import { body, validationResult } from "express-validator";
+import { NewListEntry } from "../interfaces";
 
 
 export const createList = [
   body('name').trim().notEmpty().withMessage('Name is required').escape(),
-  async (req: Request, res: Response) => {
+  async (req: Request<{boardId: string},{},NewListEntry>, res: Response) => {
     const result = validationResult(req);
-    const { board_id } = req.params;
+    const { boardId } = req.params;
     const { name } = req.body;
 
     if(!result.isEmpty()) {
       return res.status(400).json({ errorList: result.array() })
     }
 
-    if(!Number.isNaN(parseInt(board_id))) {
+    if(!Number.isNaN(parseInt(boardId))) {
       const list = await prisma.list.create({
         data: {
           name: name,
-          boardId: parseInt(board_id),
+          boardId: parseInt(boardId),
         }
       });
 
@@ -30,11 +31,11 @@ export const createList = [
 
 export async function changePosition(req: Request, res: Response) {
   const { moveTo } = req.body;
-  const { board_id, list_id } = req.params;
+  const { boardId, listId } = req.params;
 
   const selectedList = await prisma.list.findUnique({
     where: {
-      listId: parseInt(list_id)
+      listId: parseInt(listId)
     }
   })
 
@@ -42,7 +43,7 @@ export async function changePosition(req: Request, res: Response) {
   if (selectedList?.position! > moveTo) {
     const updateMultipleListPosition = prisma.list.updateMany({
       where: {
-        boardId: parseInt(board_id),
+        boardId: parseInt(boardId),
         AND: [
           {
             position: {
@@ -65,7 +66,7 @@ export async function changePosition(req: Request, res: Response) {
   
     const updateListPosition =  prisma.list.update({
       where: {
-        listId: parseInt(list_id),
+        listId: parseInt(listId),
       },
       data: {
         position: parseInt(moveTo),
@@ -78,7 +79,7 @@ export async function changePosition(req: Request, res: Response) {
   } else {
     const updateMultipleListPosition = prisma.list.updateMany({
       where: {
-        boardId: parseInt(board_id),
+        boardId: parseInt(boardId),
         AND: [
           {
             position: {
@@ -101,7 +102,7 @@ export async function changePosition(req: Request, res: Response) {
   
     const updateListPosition =  prisma.list.update({
       where: {
-        listId: parseInt(list_id),
+        listId: parseInt(listId),
       },
       data: {
         position: parseInt(moveTo),
