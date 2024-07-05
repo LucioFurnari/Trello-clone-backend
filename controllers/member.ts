@@ -3,14 +3,14 @@ import { Request, Response } from "express";
 
 
 export async function addMember(req: Request, res: Response) {
-  const { workspace_id } = req.params;
-  const { user_id } = req.body;
+  const { workspaceId } = req.params;
+  const { userId } = req.body;
   try {
     const addedUser = await prisma.workspaceUsers.create({
       data: {
         is_admin: false,
-        userId: user_id,
-        workspaceId: parseInt(workspace_id)
+        userId: userId,
+        workspaceId: parseInt(workspaceId)
       }
     });
   
