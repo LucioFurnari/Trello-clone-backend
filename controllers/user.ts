@@ -3,8 +3,8 @@ import prisma from "../models/prismaClient";
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { Request, Response, NextFunction } from "express";
-import express from 'express';
 import { AuthRequest, JwtPayload } from "../interfaces";
+import { UserEntry } from "../interfaces";
 
 const SECRET_KEY = process.env.DEV_SECRET_KEY;
 
@@ -12,7 +12,7 @@ export const createUser = [
   body('username').notEmpty().trim().withMessage('The user name is required').escape(),
   body('email').notEmpty().trim().withMessage('The email is required').isEmail().withMessage('Have to be a valid email'),
   body('password').notEmpty().trim().withMessage('The password is required').escape(),
-  async (req: Request, res: Response) => {
+  async (req: Request<{},{},UserEntry>, res: Response) => {
     const { username, email, password} = req.body;
     const result = validationResult(req);
 
@@ -55,7 +55,7 @@ export async function updateUserData() {
 export const loginUser = [
   body('email').trim().notEmpty().withMessage('The user email is required').isEmail().withMessage('The email is not valid'),
   body('password').trim().notEmpty().withMessage('The user password is required').escape(),
-  async (req: Request, res: Response) => { 
+  async (req: Request<{},{},UserEntry>, res: Response) => { 
     const { email, password } = req.body;
     const result = validationResult(req);
 
@@ -102,7 +102,7 @@ export async function logout(_req: Request, res: Response) {
   return res.json({ message: 'Logout successful'});
 }
 
-export function verifyToken(req: AuthRequest, res: express.Response, next: NextFunction) {
+export function verifyToken(req: AuthRequest, res: Response, next: NextFunction) {
   const token = req.cookies.access_token;
 
   if(!token) {
