@@ -42,10 +42,12 @@ export const createUser = [
   }
 ];
 
-export async function getUser(_req: Request, res: Response) {
-  return res.status(200).json({
-    user: 'User data',
-  })
+export async function getUser(req: AuthRequest, res: Response) {
+  if (!req.user) {
+    return res.status(400).json({ message: 'User not logged'});
+  }
+  const { username, email, id} = req.user
+  return res.status(200).json({ message: 'Profile info', user: { username, email, id}});
 };
 
 export async function updateUserData() {
@@ -87,9 +89,10 @@ export const loginUser = [
         )
         res.cookie('access_token', token, {
           httpOnly: true,
-          sameSite: 'strict'
+          sameSite: 'lax',
+          secure: false
         });
-        return res.status(200).json({ message: 'User logged' });
+        return res.status(200).json({ message: 'User logged', token: token });
       } else {
         return res.status(401).json({ message: 'The password is incorrect'});
       }
