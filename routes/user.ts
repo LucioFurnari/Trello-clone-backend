@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import { createUser, loginUser, verifyToken, logout } from '../controllers/user';
+import { createUser, loginUser, getUser, verifyToken, logout } from '../controllers/user';
 const router = Router();
 
 router.post('/user', createUser);
 
 router.post('/login', loginUser);
 
-router.post('/session', verifyToken)
+router.get('/profile', verifyToken, getUser)
 
 router.post('/logout', logout);
 
