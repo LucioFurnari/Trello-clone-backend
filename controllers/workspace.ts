@@ -48,23 +48,18 @@ export async function getWorkSpace(req: AuthRequest, res: Response) {
   if(!Number.isNaN(parseInt(workspaceId))) {
     try {
       const workspace = await prisma.workspace.findUnique({
-        where: { workspaceId: parseInt(workspaceId) }
+        where: { workspaceId: parseInt(workspaceId) },
+        include: {
+          boards: true
+        }
       });
 
       if (!workspace) {
         return res.status(404).json({ message: 'Workspace not found', error: true });
       }
-
-      const boards = await prisma.board.findMany({
-        where: { workspaceId: parseInt(workspaceId)}
-      })
-
-      if (!boards) {
-        return res.status(404).json({ message: 'Boards not found'});
-      }
       
       if (workspace.visibilityPublic) {
-        return res.status(200).json({  boards });
+        return res.status(200).json({ workspace });
       }
 
       if(req.user) {
@@ -75,7 +70,7 @@ export async function getWorkSpace(req: AuthRequest, res: Response) {
           }
         });
         if (workspace.visibilityPrivate && workspaceUser) {
-          return res.status(200).json({ boards });
+          return res.status(200).json({ workspace });
         }
       }
 
