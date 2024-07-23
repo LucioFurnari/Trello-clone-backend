@@ -8,20 +8,24 @@ export async function getBoard(req: Request, res: Response) {
   const { boardId } = req.params;
   
   try {
-    const board = await prisma.board.findUnique({
-      where: { boardId: Number(boardId) },
-      include: {
-        lists: {
-          include: {
-            cards: true,
-          }
-        },
-      }
-    });
-  
-    if (!board) return res.status(404).json({ message: 'Board not found', error: true});
+    if (!Number.isNaN(Number(boardId))) { 
+      const board = await prisma.board.findUnique({
+        where: { boardId: Number(boardId) },
+        include: {
+          lists: {
+            include: {
+              cards: true,
+            }
+          },
+        }
+      });
     
-    return res.status(302).json(board);
+      if (!board) return res.status(404).json({ message: 'Board not found', error: true});
+      
+      return res.status(302).json(board);
+    }
+    
+    return res.status(400).json({ message: 'The id is not a number', error: true });
   } catch (error) {
     console.error('Error getting board', error);
     return res.status(500).json({ error: 'Internal server error' });
