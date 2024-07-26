@@ -34,13 +34,13 @@ export async function deleteList(req: Request, res: Response) {
 
   try {
     if(!Number.isNaN(parseInt(listId))) {
-      const deleteList = await prisma.list.delete({
+      const list = await prisma.list.delete({
         where: {
           listId: parseInt(listId),
         },
       });
 
-      return res.status(200).json({ message: 'List deleted', deleteList})
+      return res.status(200).json({ message: 'List deleted', list})
     }
 
     return res.status(400).json({ message: 'The list id is not valid', error: true });
