@@ -29,6 +29,27 @@ export const createList = [
   }
 ]
 
+export async function deleteList(req: Request, res: Response) {
+  const { listId } = req.params;
+
+  try {
+    if(!Number.isNaN(parseInt(listId))) {
+      const deleteList = await prisma.list.delete({
+        where: {
+          listId: parseInt(listId),
+        },
+      });
+
+      return res.status(200).json({ message: 'List deleted', deleteList})
+    }
+
+    return res.status(400).json({ message: 'The list id is not valid', error: true });
+  } catch (error) {
+    console.error('Error deleting list:', error);
+    return res.status(500).json({ message: 'Internal server error', error: true });
+  }
+}
+
 export async function changePosition(req: Request, res: Response) {
   const { moveTo } = req.body;
   const { boardId, listId } = req.params;
