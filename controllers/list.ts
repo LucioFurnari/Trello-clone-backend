@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import prisma from "../models/prismaClient";
 import { body, validationResult } from "express-validator";
 import { NewListEntry } from "../interfaces";
+import { List } from "@prisma/client";
 
 
 export const createList = [
@@ -60,43 +61,14 @@ export async function changePosition(req: Request, res: Response) {
     }
   })
 
-  console.log(selectedList)
   if (selectedList?.position! > moveTo) {
-    const updateMultipleListPosition = prisma.list.updateMany({
-      where: {
-        boardId: parseInt(boardId),
-        AND: [
-          {
-            position: {
-              gte: moveTo,
-            },
-          },
-          {
-            position: {
-              lt: selectedList?.position,
-            }
-          }
-        ]
-      },
-      data: {
-        position: {
-          increment: 1
-        }
-      }
-    })
-  
-    const updateListPosition =  prisma.list.update({
-      where: {
-        listId: parseInt(listId),
-      },
-      data: {
-        position: parseInt(moveTo),
-      }
-    })
-  
-    await prisma.$transaction([updateMultipleListPosition, updateListPosition]);
-  
-    res.status(200).json({ message: 'Updated'})
+    try {
+      await moveLeft(boardId, listId, moveTo, selectedList);
+      res.status(200).json({ message: 'Updated'})
+    } catch (error) {
+      
+    }
+
   } else {
     const updateMultipleListPosition = prisma.list.updateMany({
       where: {
@@ -135,3 +107,40 @@ export async function changePosition(req: Request, res: Response) {
     res.status(200).json({ message: 'Updated'})
   }
 };
+
+
+async function moveLeft(boardId: string, listId: string, moveTo: number, selectedList: List,) {
+  const updateMultipleListPosition = prisma.list.updateMany({
+    where: {
+      boardId: parseInt(boardId),
+      AND: [
+        {
+          position: {
+            gte: moveTo,
+          },
+        },
+        {
+          position: {
+            lt: selectedList?.position,
+          }
+        }
+      ]
+    },
+    data: {
+      position: {
+        increment: 1
+      }
+    }
+  })
+
+  const updateListPosition =  prisma.list.update({
+    where: {
+      listId: parseInt(listId),
+    },
+    data: {
+      position: moveTo,
+    }
+  })
+
+  await prisma.$transaction([updateMultipleListPosition, updateListPosition]);
+}
