@@ -31,7 +31,7 @@ export const createList = [
 ]
 
 export async function deleteList(req: Request, res: Response) {
-  const { listId } = req.params;
+  const { listId, boardId } = req.params;
 
   try {
     if(!Number.isNaN(parseInt(listId))) {
@@ -41,7 +41,18 @@ export async function deleteList(req: Request, res: Response) {
         },
       });
 
-      return res.status(200).json({ message: 'List deleted', list})
+      const updatedList = await prisma.list.updateMany({
+        where: {
+          boardId: parseInt(boardId)
+        },
+        data: {
+          position: {
+            decrement: 1
+          }
+        }
+      })
+
+      return res.status(200).json({ message: 'List deleted', list, updatedList})
     }
 
     return res.status(400).json({ message: 'The list id is not valid', error: true });
