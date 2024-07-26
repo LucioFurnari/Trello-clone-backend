@@ -7,6 +7,6 @@ router.post('/board/:boardId/list', createList);
 
 router.put('/board/:boardId/list/:listId', changePosition);
 
-router.delete('/list/:listId', deleteList);
+router.delete('/board/:boardId/list/:listId', deleteList);
 
 export { router as listRouter }
