@@ -65,7 +65,10 @@ export async function deleteList(req: Request, res: Response) {
 
       const updatedList = await prisma.list.updateMany({
         where: {
-          boardId: parseInt(boardId)
+          AND: [
+            { boardId: parseInt(boardId) },
+            { position: { gte: list.position }}
+          ]
         },
         data: {
           position: {
