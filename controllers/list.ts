@@ -26,7 +26,16 @@ export const createList = [
         }
       })
       
-      if (lastList) {
+      if (lastList.length === 0) {
+        const list = await prisma.list.create({
+          data: {
+            name: name,
+            boardId: parseInt(boardId),
+          }
+        });
+
+        return res.status(200).json({ message: 'List created', list});
+      } else {
         const list = await prisma.list.create({
           data: {
             name: name,
