@@ -17,14 +17,27 @@ export const createList = [
     }
 
     if(!Number.isNaN(parseInt(boardId))) {
-      const list = await prisma.list.create({
-        data: {
-          name: name,
+      const lastList = await prisma.list.findMany({
+        where: {
           boardId: parseInt(boardId),
+        },
+        orderBy: {
+          position: 'desc',
         }
-      });
+      })
+      
+      if (lastList) {
+        const list = await prisma.list.create({
+          data: {
+            name: name,
+            boardId: parseInt(boardId),
+            position: lastList[0].position + 1,
+          }
+        });
 
-      return res.status(200).json({ message: 'List created', list});
+        return res.status(200).json({ message: 'List created', list});
+      }
+
     }
     return res.status(400).json({ message: 'The board id is not valid', error: true });
   }
