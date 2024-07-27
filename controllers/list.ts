@@ -56,28 +56,36 @@ export async function deleteList(req: Request, res: Response) {
   const { listId, boardId } = req.params;
 
   try {
-    if(!Number.isNaN(parseInt(listId))) {
+    const parsedListId = parseInt(listId);
+
+    if (!Number.isNaN(parsedListId)) {
+      const existingList = await prisma.list.findUnique({
+        where: { listId: parsedListId },
+      });
+
+      if (!existingList) {
+        return res.status(404).json({ message: 'List not found' });
+      }
+
       const list = await prisma.list.delete({
-        where: {
-          listId: parseInt(listId),
-        },
+        where: { listId: parsedListId },
       });
 
       const updatedList = await prisma.list.updateMany({
         where: {
           AND: [
             { boardId: parseInt(boardId) },
-            { position: { gte: list.position }}
-          ]
+            { position: { gte: list.position } },
+          ],
         },
         data: {
           position: {
-            decrement: 1
-          }
-        }
-      })
+            decrement: 1,
+          },
+        },
+      });
 
-      return res.status(200).json({ message: 'List deleted', list, updatedList})
+      return res.status(200).json({ message: 'List deleted', list, updatedList });
     }
 
     return res.status(400).json({ message: 'The list id is not valid', error: true });
