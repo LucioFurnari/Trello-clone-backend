@@ -62,7 +62,7 @@ model Board {
 model List {
   listId              Int           @id @default(autoincrement())
   name                String
-  position            Int           @default(autoincrement())
+  position            Int           
   boardId             Int
   board               Board         @relation(fields: [boardId], references: [boardId], onDelete: Cascade)
   cards               Card[]
