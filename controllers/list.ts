@@ -4,7 +4,7 @@ import { body, validationResult } from "express-validator";
 import { NewListEntry } from "../interfaces";
 import { List } from "@prisma/client";
 
-
+// Create List function
 export const createList = [
   body('name').trim().notEmpty().withMessage('Name is required').escape(),
   async (req: Request<{boardId: string},{},NewListEntry>, res: Response) => {
@@ -31,6 +31,7 @@ export const createList = [
           data: {
             name: name,
             boardId: parseInt(boardId),
+            position: 0
           }
         });
 
@@ -52,6 +53,7 @@ export const createList = [
   }
 ]
 
+// Delete list function
 export async function deleteList(req: Request, res: Response) {
   const { listId, boardId } = req.params;
 
@@ -95,38 +97,54 @@ export async function deleteList(req: Request, res: Response) {
   }
 }
 
-export async function changePosition(req: Request, res: Response) {
-  const { moveTo } = req.body;
-  const { boardId, listId } = req.params;
+// Update position function
+export async function updatePosition(req: Request, res: Response) {
+  const { newList } = req.body;
+  // const { boardId, listId } = req.params; moveTo,
+  
+  try {
+    const updatePromises = newList.map((item: { listId: number; }, index: number) =>
+      prisma.list.update({
+        where: { listId: item.listId },
+        data: { position: index },
+      })
+    );
 
-  const selectedList = await prisma.list.findUnique({
-    where: {
-      listId: parseInt(listId)
-    }
-  })
+    await Promise.all(updatePromises);
 
-  if (!selectedList) {
-    return res.status(404).json({ message: 'List not found'})
-  }
-
-  if (selectedList?.position! > moveTo) {
-    try {
-      await moveLeft(boardId, listId, moveTo, selectedList);
-      return res.status(200).json({ message: 'Updated'})
+    res.status(200).json({ message: 'Order saved successfully' });
     } catch (error) {
-      
+    console.error(error);
+    res.status(500).json({ message: 'Error saving order' });
     }
-
-  } else {
-    
-    try {
-      await moveRight(boardId, listId, moveTo, selectedList)
-      return res.status(200).json({ message: 'Updated'})
-    } catch (error) {
-      
-    }
-  }
 };
+  // const selectedList = await prisma.list.findUnique({
+  //   where: {
+  //     listId: parseInt(listId)
+  //   }
+  // })
+
+  // if (!selectedList) {
+  //   return res.status(404).json({ message: 'List not found'})
+  // }
+
+  // if (selectedList?.position! > moveTo) {
+  //   try {
+  //     await moveLeft(boardId, listId, moveTo, selectedList);
+  //     return res.status(200).json({ message: 'Updated'})
+  //   } catch (error) {
+      
+  //   }
+
+  // } else {
+    
+  //   try {
+  //     await moveRight(boardId, listId, moveTo, selectedList)
+  //     return res.status(200).json({ message: 'Updated'})
+  //   } catch (error) {
+      
+  //   }
+  // }
 
 
 async function moveLeft(boardId: string, listId: string, moveTo: number, selectedList: List) {
