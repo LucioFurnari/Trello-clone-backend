@@ -69,22 +69,36 @@ export const createCard = [
 
     if (!list) return res.status(404).json({ message: 'List not found', error: true});
 
-    const startDateObject = parse(startDate, 'MM/dd/yyyy', new Date());
-    const dueDateObject = parse(dueDate, 'MM/dd/yyyy hh:mm a', new Date());
+    if (startDate || dueDate) {
+      const startDateObject = parse(startDate, 'MM/dd/yyyy', new Date());
+      const dueDateObject = parse(dueDate, 'MM/dd/yyyy hh:mm a', new Date());
 
-    const card = await prisma.card.create({
-      data: {
-        title: title,
-        listId: parseInt(listId),
-        description: description,
-        startDate: startDateObject,
-        dueDate: dueDateObject,
-        coverColor: coverColor,
-        coverImage: coverImage
-      }
-    });
+      const card = await prisma.card.create({
+        data: {
+          title: title,
+          listId: parseInt(listId),
+          description: description,
+          startDate: startDateObject,
+          dueDate: dueDateObject,
+          coverColor: coverColor,
+          coverImage: coverImage
+        }
+      });
 
-    return res.status(201).json({ message: 'Card created', card})
+      return res.status(201).json({ message: 'Card created', card})
+    } else {
+      const card = await prisma.card.create({
+        data: {
+          title: title,
+          listId: parseInt(listId),
+          description: description,
+          coverColor: coverColor,
+          coverImage: coverImage
+        }
+      });
+
+      return res.status(201).json({ message: 'Card created', card})
+    }
     } catch (error) {
       console.error('Error fetching workspace:', error);
       return res.status(500).json({ message: 'Internal server error', error: true });
