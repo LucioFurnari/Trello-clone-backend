@@ -99,7 +99,7 @@ export async function deleteList(req: Request, res: Response) {
 
 // Update position function
 export async function updatePosition(req: Request, res: Response) {
-  const { newList } = req.body;
+  const { newList, newCards } = req.body;
   // const { boardId, listId } = req.params; moveTo,
   
   try {
@@ -110,7 +110,15 @@ export async function updatePosition(req: Request, res: Response) {
       })
     );
 
+    const updateCards = newCards.map((card: { cardId: number; listId: number}) => 
+      prisma.card.update({
+        where: { cardId: card.cardId },
+        data: { listId: card.listId }
+      })
+    )
+
     await Promise.all(updatePromises);
+    await Promise.all(updateCards);
 
     res.status(200).json({ message: 'Order saved successfully' });
     } catch (error) {
