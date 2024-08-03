@@ -137,26 +137,41 @@ export const updateCard = [
     const { title, description, startDate, dueDate, coverColor, coverImage } = req.body;
     const { cardId } = req.params;
 
-    const startDateObject = parse(startDate, 'MM/dd/yyyy', new Date());
-    const dueDateObject = parse(dueDate, 'MM/dd/yyyy hh:mm a', new Date());
-
     try {
-      const card = await prisma.card.update({
-        where: {
-          cardId: parseInt(cardId)
-        },
-        data: {
-          title: title,
-          description: description,
-          startDate: startDateObject,
-          dueDate: dueDateObject,
-          coverColor: coverColor,
-          coverImage: coverImage
-        }
-      });
-
-      if (!card) return res.status(404).json({ message: 'Card not found', error: true });
-
+      if (startDate || dueDate) {
+        const startDateObject = parse(startDate, 'MM/dd/yyyy', new Date());
+        const dueDateObject = parse(dueDate, 'MM/dd/yyyy hh:mm a', new Date());
+  
+        const card = await prisma.card.update({
+          where: {
+            cardId: parseInt(cardId)
+          },
+          data: {
+            title: title,
+            description: description,
+            startDate: startDateObject,
+            dueDate: dueDateObject,
+            coverColor: coverColor,
+            coverImage: coverImage
+          }
+        });
+        if (!card) return res.status(404).json({ message: 'Card not found', error: true });
+        return res.status(201).json({ message: 'Card updated', card})
+      } else {
+        const card = await prisma.card.update({
+          where: {
+            cardId: parseInt(cardId)
+          },
+          data: {
+            title: title,
+            description: description,
+            coverColor: coverColor,
+            coverImage: coverImage
+          }
+        });
+        if (!card) return res.status(404).json({ message: 'Card not found', error: true });
+        return res.status(201).json({ message: 'Card updated', card})
+      }
     } catch (error) {
       console.error('Error fetching workspace:', error);
       return res.status(500).json({ message: 'Internal server error', error: true });
