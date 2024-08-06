@@ -59,7 +59,7 @@ export const createBoard = [
           workspaceId: Number(workspaceId)
         }
       });
-      return res.status(201).json({ board });
+      return res.status(201).json({ message: 'Board created', board: board});
     } catch (error) {
       console.error('Error creating board', error);
       return res.status(500).json({ error: 'Internal server error' });
