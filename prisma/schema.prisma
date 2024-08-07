@@ -14,7 +14,7 @@ datasource db {
 }
 
 model User {
-  id             Int                @id @default(autoincrement())
+  id             String               @id @default(uuid()) @db.Uuid
   name           String
   email          String             @unique
   password       String
@@ -22,7 +22,7 @@ model User {
 }
 
 model Workspace {
-  workspaceId         Int           @id @default(autoincrement())
+  workspaceId         String           @id @default(uuid()) @db.Uuid
   name                String
   description         String?
   visibilityPrivate   Boolean       @default(true)
@@ -34,9 +34,9 @@ model Workspace {
 }
 
 model WorkspaceUsers {
-  workspaceUsersId    Int           @id @default(autoincrement())
-  userId              Int           
-  workspaceId         Int
+  workspaceUsersId    String        @id @default(uuid()) @db.Uuid
+  userId              String           
+  workspaceId         String
   is_admin            Boolean       @default(true)
   user                User          @relation(fields: [userId], references: [id])
   workspace           Workspace     @relation(fields: [workspaceId], references: [workspaceId])
@@ -46,12 +46,12 @@ model WorkspaceUsers {
 }
 
 model Board {
-  boardId             Int           @id @default(autoincrement())
+  boardId             String        @id @default(uuid()) @db.Uuid
   title               String
   description         String?
   coverColor          String?
   coverImage          String?
-  workspaceId         Int
+  workspaceId         String
   workspace           Workspace     @relation(fields: [workspaceId], references: [workspaceId], onDelete: Cascade)
   lists               List[]
 
@@ -60,10 +60,10 @@ model Board {
 }
 
 model List {
-  listId              Int           @id @default(autoincrement())
+  listId              String        @id @default(uuid()) @db.Uuid
   name                String
   position            Int           
-  boardId             Int
+  boardId             String
   board               Board         @relation(fields: [boardId], references: [boardId], onDelete: Cascade)
   cards               Card[]
 
@@ -72,15 +72,15 @@ model List {
 }
 
 model Card {
-  cardId              Int           @id @default(autoincrement())
+  cardId              String        @id @default(uuid()) @db.Uuid
   title               String
   description         String?
   coverColor          String?
   coverImage          String?
   startDate           DateTime?      @db.Date
   dueDate             DateTime?
-  listId              Int
-  list                List          @relation(fields: [listId], references: [listId], onDelete: Cascade)
+  listId              String
+  list                List           @relation(fields: [listId], references: [listId], onDelete: Cascade)
 
 
   @@index([listId])
