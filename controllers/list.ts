@@ -15,40 +15,34 @@ export const createList = [
       return res.status(400).json({ errorList: result.array() })
     }
 
-    if(!Number.isNaN(parseInt(boardId))) {
-      const lastList = await prisma.list.findMany({
-        where: {
-          boardId: parseInt(boardId),
-        },
-        orderBy: {
-          position: 'desc',
-        }
-      })
-      
-      if (lastList.length === 0) {
-        const list = await prisma.list.create({
-          data: {
-            name: name,
-            boardId: parseInt(boardId),
-            position: 0
-          }
-        });
-
-        return res.status(200).json({ message: 'List created', list});
-      } else {
-        const list = await prisma.list.create({
-          data: {
-            name: name,
-            boardId: parseInt(boardId),
-            position: lastList[0].position + 1,
-          }
-        });
-
-        return res.status(200).json({ message: 'List created', list});
+    const lastList = await prisma.list.findMany({
+      where: {
+        boardId: boardId,
+      },
+      orderBy: {
+        position: 'desc',
       }
-
+    })
+    
+    if (lastList.length === 0) {
+      const list = await prisma.list.create({
+        data: {
+          name: name,
+          boardId: boardId,
+          position: 0
+        }
+      });
+      return res.status(200).json({ message: 'List created', list});
+    } else {
+      const list = await prisma.list.create({
+        data: {
+          name: name,
+          boardId: boardId,
+          position: lastList[0].position + 1,
+        }
+      });
+      return res.status(200).json({ message: 'List created', list});
     }
-    return res.status(400).json({ message: 'The board id is not valid', error: true });
   }
 ]
 
@@ -57,39 +51,31 @@ export async function deleteList(req: Request, res: Response) {
   const { listId, boardId } = req.params;
 
   try {
-    const parsedListId = parseInt(listId);
 
-    if (!Number.isNaN(parsedListId)) {
-      const existingList = await prisma.list.findUnique({
-        where: { listId: parsedListId },
-      });
-
-      if (!existingList) {
-        return res.status(404).json({ message: 'List not found' });
-      }
-
-      const list = await prisma.list.delete({
-        where: { listId: parsedListId },
-      });
-
-      const updatedList = await prisma.list.updateMany({
-        where: {
-          AND: [
-            { boardId: parseInt(boardId) },
-            { position: { gte: list.position } },
-          ],
+    const existingList = await prisma.list.findUnique({
+      where: { listId: listId },
+    });
+    if (!existingList) {
+      return res.status(404).json({ message: 'List not found' });
+    }
+    const list = await prisma.list.delete({
+      where: { listId: listId },
+    });
+    const updatedList = await prisma.list.updateMany({
+      where: {
+        AND: [
+          { boardId: boardId },
+          { position: { gte: list.position } },
+        ],
+      },
+      data: {
+        position: {
+          decrement: 1,
         },
-        data: {
-          position: {
-            decrement: 1,
-          },
-        },
-      });
+      },
+    });
 
       return res.status(200).json({ message: 'List deleted', list, updatedList });
-    }
-
-    return res.status(400).json({ message: 'The list id is not valid', error: true });
   } catch (error) {
     console.error('Error deleting list:', error);
     return res.status(500).json({ message: 'Internal server error', error: true });
@@ -102,14 +88,14 @@ export async function updatePosition(req: Request, res: Response) {
   // const { boardId, listId } = req.params; moveTo,
   
   try {
-    const updatePromises = newList.map((item: { listId: number; }, index: number) =>
+    const updatePromises = newList.map((item: { listId: string; }, index: number) =>
       prisma.list.update({
         where: { listId: item.listId },
         data: { position: index },
       })
     );
 
-    const updateCards = newCards.map((card: { cardId: number; listId: number}) => 
+    const updateCards = newCards.map((card: { cardId: string; listId: string}) => 
       prisma.card.update({
         where: { cardId: card.cardId },
         data: { listId: card.listId }
