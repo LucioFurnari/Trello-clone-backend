@@ -10,7 +10,7 @@ export async function getBoard(req: Request, res: Response) {
   try {
     if (!Number.isNaN(Number(boardId))) { 
       const board = await prisma.board.findUnique({
-        where: { boardId: Number(boardId) },
+        where: { boardId: boardId },
         include: {
           lists: {
             include: {
@@ -56,7 +56,7 @@ export const createBoard = [
           description,
           coverImage,
           coverColor,
-          workspaceId: Number(workspaceId)
+          workspaceId: workspaceId
         }
       });
       return res.status(201).json({ message: 'Board created', board: board});
@@ -84,10 +84,9 @@ export const updateBoard = [
       return res.status(400).json({ errorList: result.array() });
     }
     try {
-      if (!Number.isNaN(Number(boardId))) {
         const updatedBoard = await prisma.board.update({
           where: {
-            boardId: parseInt(boardId),
+            boardId: boardId,
           },
           data: {
             title,
@@ -97,9 +96,6 @@ export const updateBoard = [
           }
         });
         return res.status(200).json({ message: 'Board updated correctly', updatedBoard });
-      }
-
-      return res.status(400).json({ message: 'The id is not a number', error: true });
     } catch (error) {
       console.error('Error updating board', error);
       return res.status(500).json({ error: 'Internal server error' });
@@ -111,10 +107,9 @@ export async function deleteBoard(req: Request, res: Response) {
   const { boardId } = req.params;
 
   try {
-    if(!Number.isNaN(Number(boardId))) {
       const deletedBoard = await prisma.board.delete({
         where: {
-          boardId: Number(boardId),
+          boardId: boardId,
         }
       });
 
@@ -122,9 +117,6 @@ export async function deleteBoard(req: Request, res: Response) {
         return res.status(404).json({ message: 'Board not found', error: true });
       }
       return res.status(200).json({ message: 'Board deleted successfully', deletedBoard});
-    }
-
-    return res.status(400).json({ message: 'The id is not a number', error: true });
   } catch (error) {
     console.error('Error updating board', error);
     return res.status(500).json({ error: 'Internal server error' });
