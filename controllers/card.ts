@@ -11,7 +11,7 @@ export async function getCard(req: Request, res: Response) {
   try {
     const card = await prisma.card.findUnique({
       where: {
-        cardId: parseInt(cardId)
+        cardId: cardId
       }
     });
 
@@ -63,7 +63,7 @@ export const createCard = [
     try {
     const list = await prisma.list.findUnique({
       where: {
-        listId: parseInt(listId)
+        listId: listId
       }
     });
 
@@ -76,7 +76,7 @@ export const createCard = [
       const card = await prisma.card.create({
         data: {
           title: title,
-          listId: parseInt(listId),
+          listId: listId,
           description: description,
           startDate: startDateObject,
           dueDate: dueDateObject,
@@ -90,7 +90,7 @@ export const createCard = [
       const card = await prisma.card.create({
         data: {
           title: title,
-          listId: parseInt(listId),
+          listId: listId,
           description: description,
           coverColor: coverColor,
           coverImage: coverImage
@@ -144,7 +144,7 @@ export const updateCard = [
   
         const card = await prisma.card.update({
           where: {
-            cardId: parseInt(cardId)
+            cardId: cardId
           },
           data: {
             title: title,
@@ -160,7 +160,7 @@ export const updateCard = [
       } else {
         const card = await prisma.card.update({
           where: {
-            cardId: parseInt(cardId)
+            cardId: cardId
           },
           data: {
             title: title,
@@ -185,7 +185,7 @@ export async function deleteCard(req: Request, res: Response) {
   try {
     const card = await prisma.card.delete({
       where: {
-        cardId: parseInt(cardId)
+        cardId: cardId
       }
     });
   
