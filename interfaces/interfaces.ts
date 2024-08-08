@@ -12,7 +12,7 @@ export interface AuthRequest<T = any> extends Request {
 export interface JwtPayload {
   username: string,
   email: string,
-  id: number
+  id: string
 }
 
 export interface NewBoardEntry {
