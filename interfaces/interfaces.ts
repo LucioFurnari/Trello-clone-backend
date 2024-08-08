@@ -4,7 +4,7 @@ export interface AuthRequest<T = any> extends Request {
   user?: {
     username: string,
     email: string, 
-    id: number
+    id: string
   },
   body: T
 }
