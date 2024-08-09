@@ -1,10 +1,9 @@
 import { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import prisma from '../models/prismaClient';
-import { parse } from 'date-fns';
 import { NewCardEntry } from '../interfaces';
 
-
+// Get card
 export async function getCard(req: Request, res: Response) {
   const { cardId } = req.params;
 
@@ -24,6 +23,7 @@ export async function getCard(req: Request, res: Response) {
   }
 }
 
+// Create card
 export const createCard = [
   body('title').trim().notEmpty().withMessage('Title is required').escape(),
   body('description').optional().trim().escape()
@@ -68,37 +68,18 @@ export const createCard = [
     });
 
     if (!list) return res.status(404).json({ message: 'List not found', error: true});
-
-    if (startDate || dueDate) {
-      const startDateObject = parse(startDate, 'MM/dd/yyyy', new Date());
-      const dueDateObject = parse(dueDate, 'MM/dd/yyyy hh:mm a', new Date());
-
       const card = await prisma.card.create({
         data: {
           title: title,
           listId: listId,
           description: description,
-          startDate: startDateObject,
-          dueDate: dueDateObject,
+          dueDate: dueDate,
           coverColor: coverColor,
           coverImage: coverImage
         }
       });
 
       return res.status(201).json({ message: 'Card created', card})
-    } else {
-      const card = await prisma.card.create({
-        data: {
-          title: title,
-          listId: listId,
-          description: description,
-          coverColor: coverColor,
-          coverImage: coverImage
-        }
-      });
-
-      return res.status(201).json({ message: 'Card created', card})
-    }
     } catch (error) {
       console.error('Error fetching workspace:', error);
       return res.status(500).json({ message: 'Internal server error', error: true });
@@ -106,6 +87,7 @@ export const createCard = [
   }
 ];
 
+// Update card
 export const updateCard = [
   body('title').trim().notEmpty().withMessage('Title is required').escape(),
   body('description').optional().trim().escape()
@@ -138,10 +120,6 @@ export const updateCard = [
     const { cardId } = req.params;
 
     try {
-      if (startDate || dueDate) {
-        const startDateObject = parse(startDate, 'MM/dd/yyyy', new Date());
-        const dueDateObject = parse(dueDate, 'MM/dd/yyyy hh:mm a', new Date());
-  
         const card = await prisma.card.update({
           where: {
             cardId: cardId
@@ -149,29 +127,13 @@ export const updateCard = [
           data: {
             title: title,
             description: description,
-            startDate: startDateObject,
-            dueDate: dueDateObject,
+            dueDate: dueDate,
             coverColor: coverColor,
             coverImage: coverImage
           }
         });
         if (!card) return res.status(404).json({ message: 'Card not found', error: true });
         return res.status(201).json({ message: 'Card updated', card})
-      } else {
-        const card = await prisma.card.update({
-          where: {
-            cardId: cardId
-          },
-          data: {
-            title: title,
-            description: description,
-            coverColor: coverColor,
-            coverImage: coverImage
-          }
-        });
-        if (!card) return res.status(404).json({ message: 'Card not found', error: true });
-        return res.status(201).json({ message: 'Card updated', card})
-      }
     } catch (error) {
       console.error('Error fetching workspace:', error);
       return res.status(500).json({ message: 'Internal server error', error: true });
@@ -179,6 +141,7 @@ export const updateCard = [
   }
 ];
 
+// Delete card
 export async function deleteCard(req: Request, res: Response) {
   const { cardId } = req.params;
 
