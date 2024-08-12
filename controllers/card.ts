@@ -26,7 +26,7 @@ export async function getCard(req: Request, res: Response) {
 // Create card
 export const createCard = [
   body('title').trim().notEmpty().withMessage('Title is required').escape(),
-  body('description').optional().trim().escape()
+  body('description').optional().trim()
     .customSanitizer(value => {
       if (!value) return null; // Handle empty string and falsy values
       return value;
@@ -90,7 +90,7 @@ export const createCard = [
 // Update card
 export const updateCard = [
   body('title').trim().notEmpty().withMessage('Title is required').escape(),
-  body('description').optional().trim().escape()
+  body('description').optional()
     .customSanitizer(value => {
       if (!value) return null; // Handle empty string and falsy values
       return value;
