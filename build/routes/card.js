@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.cardRouter = void 0;
+const express_1 = require("express");
+const card_1 = require("../controllers/card");
+const router = (0, express_1.Router)();
+exports.cardRouter = router;
+router.post('/list/:listId/card', card_1.createCard);
+router.delete('/card/:cardId', card_1.deleteCard);
+router.put('/card/:cardId', card_1.updateCard);
+router.get('/card/:cardId', card_1.getCard);

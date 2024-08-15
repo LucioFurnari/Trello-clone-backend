@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.listRouter = void 0;
+const express_1 = require("express");
+const list_1 = require("../controllers/list");
+const router = (0, express_1.Router)();
+exports.listRouter = router;
+router.post('/board/:boardId/list', list_1.createList);
+router.put('/list', list_1.updatePosition);
+router.delete('/board/:boardId/list/:listId', list_1.deleteList);
