@@ -5,8 +5,9 @@ import bcrypt from 'bcrypt';
 import { Request, Response, NextFunction } from "express";
 import { AuthRequest, JwtPayload } from "../interfaces";
 import { UserEntry } from "../interfaces";
+import 'dotenv/config'
 
-const SECRET_KEY = process.env.DEV_SECRET_KEY;
+const SECRET_KEY = process.env.SECRET_KEY || process.env.DEV_SECRET_KEY;
 
 export const createUser = [
   body('username').notEmpty().trim().withMessage('The user name is required').escape(),
