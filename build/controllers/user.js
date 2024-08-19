@@ -17,7 +17,8 @@ const express_validator_1 = require("express-validator");
 const prismaClient_1 = __importDefault(require("../models/prismaClient"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
-const SECRET_KEY = process.env.DEV_SECRET_KEY;
+require("dotenv/config");
+const SECRET_KEY = process.env.SECRET_KEY || process.env.DEV_SECRET_KEY;
 exports.createUser = [
     (0, express_validator_1.body)('username').notEmpty().trim().withMessage('The user name is required').escape(),
     (0, express_validator_1.body)('email').notEmpty().trim().withMessage('The email is required').isEmail().withMessage('Have to be a valid email'),
