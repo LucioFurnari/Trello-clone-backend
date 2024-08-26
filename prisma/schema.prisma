@@ -10,7 +10,10 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  // Change ENV for Dev or Prod
   url      = env("DATABASE_URL")
+  // Remove this in Dev
+  //directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
 model User {
@@ -38,8 +41,8 @@ model WorkspaceUsers {
   userId              String        @db.Uuid
   workspaceId         String        @db.Uuid
   is_admin            Boolean       @default(true)
-  user                User          @relation(fields: [userId], references: [id])
-  workspace           Workspace     @relation(fields: [workspaceId], references: [workspaceId])
+  user                User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace           Workspace     @relation(fields: [workspaceId], references: [workspaceId], onDelete: Cascade)
 
   @@unique([userId, workspaceId])
 }
