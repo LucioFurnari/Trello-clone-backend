@@ -12,6 +12,8 @@ export const createWorkSpace = [
     const { name, description } = req.body;
     const userData = req.user;
 
+    if (!userData) return res.status(400).json({ error: true, message: 'Token not provided'})
+
     if (result.isEmpty()) {
         const user = await prisma.user.findUnique({
           where: {
