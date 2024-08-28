@@ -47,8 +47,7 @@ export async function getWorkSpace(req: AuthRequest, res: Response) {
   const { workspaceId } = req.params;
   const userData = req.user;
 
-  if(!Number.isNaN(parseInt(workspaceId))) {
-    try {
+  try {
       const workspace = await prisma.workspace.findUnique({
         where: { workspaceId: workspaceId },
         include: {
@@ -77,12 +76,9 @@ export async function getWorkSpace(req: AuthRequest, res: Response) {
       }
 
       return res.status(403).json({ message: 'Access denied', error: true });
-    } catch (error) {
-      console.error('Error fetching workspace:', error);
-      return res.status(500).json({ message: 'Internal server error', error: true });
-    }
-  } else {
-    return res.status(400).json({ message: 'The id is not a number', error: true })
+  } catch (error) {
+    console.error('Error fetching workspace:', error);
+    return res.status(500).json({ message: 'Internal server error', error: true });
   }
 }
 
@@ -123,16 +119,14 @@ export const updateWorkspace = [
       return res.status(400).json({ errorList: result.array(), error: true });
     }
 
-    if(!Number.isNaN(parseInt(workspaceId))) {
-      const updatedWorkspace = await prisma.workspace.update({
-        where: { workspaceId: workspaceId },
-        data: { name: name, description: description }
-      });
-      if(!updateWorkspace) {
-        return res.status(404).json({ message: 'Error, workspace not found', error: true });
-      }
-      return res.status(200).json({ message: 'Workspace updated', updatedWorkspace });
+    const updatedWorkspace = await prisma.workspace.update({
+      where: { workspaceId: workspaceId },
+      data: { name: name, description: description }
+    });
+    if(!updateWorkspace) {
+      return res.status(404).json({ message: 'Error, workspace not found', error: true });
     }
+    return res.status(200).json({ message: 'Workspace updated', updatedWorkspace });
   }
 ]
 
@@ -140,15 +134,12 @@ export async function deleteWorkSpace(req: Request, res: Response) {
   const { workspaceId } = req.params;
 
   try {
-    if(!Number.isNaN(parseInt(workspaceId))) {
-      const deleteWorkSpace = await prisma.workspace.delete({
-        where: {
-          workspaceId: workspaceId,
-        },
-      });
-      return res.status(200).json({ deleteWorkSpace });
-    }
-    return res.status(400).json({ message: 'The id is incorrect', error: true})
+    const deleteWorkSpace = await prisma.workspace.delete({
+      where: {
+        workspaceId: workspaceId,
+      },
+    });
+    return res.status(200).json({ deleteWorkSpace });
   } catch (error) {
     return res.status(400).json({ message: error, error: true})
   }
