@@ -52,7 +52,7 @@ export const createCard = [
       return value;
     }),
   async (req: Request<{listId: string},{},NewCardEntry>, res: Response) => {
-    const { title, description, startDate, dueDate, coverColor, coverImage } = req.body;
+    const { title, description, dueDate, coverColor, coverImage } = req.body;
     const { listId } = req.params;
 
     const result = validationResult(req);
@@ -116,7 +116,7 @@ export const updateCard = [
       return value;
     }),
   async (req: Request<{cardId: string},{},NewCardEntry>, res: Response) => {
-    const { title, description, startDate, dueDate, coverColor, coverImage } = req.body;
+    const { title, description, dueDate, coverColor, coverImage } = req.body;
     const { cardId } = req.params;
 
     try {
