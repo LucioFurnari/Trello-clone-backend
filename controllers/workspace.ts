@@ -86,7 +86,7 @@ export async function getAllWorkSpaces(req: AuthRequest, res: Response) {
   const userData = req.user;
 
   try {
-    const workspaces = await prisma.workspaceUsers.findMany({
+    const workspacesData = await prisma.workspaceUsers.findMany({
       where: {
         userId: userData?.id
       },
@@ -101,6 +101,9 @@ export async function getAllWorkSpaces(req: AuthRequest, res: Response) {
       }
     })
   
+    // Extract the contents of each workspace
+    const workspaces = workspacesData.map(ws => ws.workspace);
+
     return res.status(200).json({ workspaces })
   } catch (error) {
     console.error('Error fetching workspace:', error);
