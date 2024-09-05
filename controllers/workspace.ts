@@ -91,13 +91,7 @@ export async function getAllWorkSpaces(req: AuthRequest, res: Response) {
         userId: userData?.id
       },
       select: {
-        workspace: {
-          select: {
-            workspaceId: true,
-            name: true,
-            boards: true
-          }
-        },
+        workspace: true
       }
     })
   
