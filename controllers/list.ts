@@ -85,7 +85,6 @@ export async function deleteList(req: Request, res: Response) {
 // Update position function
 export async function updatePosition(req: Request, res: Response) {
   const { newList, newCards } = req.body;
-  // const { boardId, listId } = req.params; moveTo,
   
   try {
     const updatePromises = newList.map((item: { listId: string; }, index: number) =>
