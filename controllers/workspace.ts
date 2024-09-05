@@ -90,8 +90,12 @@ export async function getAllWorkSpaces(req: AuthRequest, res: Response) {
       where: {
         userId: userData?.id
       },
-      select: {
-        workspace: true
+      include: {
+        workspace: {
+          include: {
+            boards: true
+          }
+        }
       }
     })
   
