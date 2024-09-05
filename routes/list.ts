@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { createList, changePosition, deleteList } from "../controllers/list";
+import { createList, updatePosition, deleteList } from "../controllers/list";
 
 const router = Router();
 
 router.post('/board/:boardId/list', createList);
 
-router.put('/board/:boardId/list/:listId', changePosition);
+router.put('/list', updatePosition);
 
 router.delete('/board/:boardId/list/:listId', deleteList);
 
