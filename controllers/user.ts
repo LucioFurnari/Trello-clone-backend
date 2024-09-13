@@ -109,7 +109,7 @@ export async function logout(_req: Request, res: Response) {
 export function verifyToken(req: AuthRequest, res: Response, next: NextFunction) {
   const token = req.cookies.access_token || req.body.access_token;
 
-  if(!token) {
+  if(token === 'undefined' ) {
     return next()
   }
 
