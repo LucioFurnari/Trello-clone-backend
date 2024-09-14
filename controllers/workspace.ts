@@ -114,7 +114,6 @@ export const updateWorkspace = [
   async (req: Request, res: Response) => {
     const result = validationResult(req);
     const { workspaceId } = req.params;
-    const { name, description } = req.body;
 
     if(!result.isEmpty()) {
       return res.status(400).json({ errorList: result.array(), error: true });
@@ -122,7 +121,7 @@ export const updateWorkspace = [
 
     const updatedWorkspace = await prisma.workspace.update({
       where: { workspaceId: workspaceId },
-      data: { name: name, description: description }
+      data: req.body
     });
     if(!updateWorkspace) {
       return res.status(404).json({ message: 'Error, workspace not found', error: true });
