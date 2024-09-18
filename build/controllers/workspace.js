@@ -21,6 +21,8 @@ exports.createWorkSpace = [
         const result = (0, express_validator_1.validationResult)(req);
         const { name, description } = req.body;
         const userData = req.user;
+        if (!userData)
+            return res.status(400).json({ error: true, message: 'Token not provided' });
         if (result.isEmpty()) {
             const user = yield prismaClient_1.default.user.findUnique({
                 where: {
@@ -51,40 +53,35 @@ function getWorkSpace(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         const { workspaceId } = req.params;
         const userData = req.user;
-        if (!Number.isNaN(parseInt(workspaceId))) {
-            try {
-                const workspace = yield prismaClient_1.default.workspace.findUnique({
-                    where: { workspaceId: workspaceId },
-                    include: {
-                        boards: true
+        try {
+            const workspace = yield prismaClient_1.default.workspace.findUnique({
+                where: { workspaceId: workspaceId },
+                include: {
+                    boards: true
+                }
+            });
+            if (!workspace) {
+                return res.status(404).json({ message: 'Workspace not found', error: true });
+            }
+            if (workspace.visibilityPublic) {
+                return res.status(200).json({ workspace });
+            }
+            if (req.user) {
+                const workspaceUser = yield prismaClient_1.default.workspaceUsers.findFirst({
+                    where: {
+                        userId: userData === null || userData === void 0 ? void 0 : userData.id,
+                        workspaceId: workspaceId
                     }
                 });
-                if (!workspace) {
-                    return res.status(404).json({ message: 'Workspace not found', error: true });
-                }
-                if (workspace.visibilityPublic) {
+                if (workspace.visibilityPrivate && workspaceUser) {
                     return res.status(200).json({ workspace });
                 }
-                if (req.user) {
-                    const workspaceUser = yield prismaClient_1.default.workspaceUsers.findFirst({
-                        where: {
-                            userId: userData === null || userData === void 0 ? void 0 : userData.id,
-                            workspaceId: workspaceId
-                        }
-                    });
-                    if (workspace.visibilityPrivate && workspaceUser) {
-                        return res.status(200).json({ workspace });
-                    }
-                }
-                return res.status(403).json({ message: 'Access denied', error: true });
             }
-            catch (error) {
-                console.error('Error fetching workspace:', error);
-                return res.status(500).json({ message: 'Internal server error', error: true });
-            }
+            return res.status(403).json({ message: 'Access denied', error: true });
         }
-        else {
-            return res.status(400).json({ message: 'The id is not a number', error: true });
+        catch (error) {
+            console.error('Error fetching workspace:', error);
+            return res.status(500).json({ message: 'Internal server error', error: true });
         }
     });
 }
@@ -93,20 +90,20 @@ function getAllWorkSpaces(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         const userData = req.user;
         try {
-            const workspaces = yield prismaClient_1.default.workspaceUsers.findMany({
+            const workspacesData = yield prismaClient_1.default.workspaceUsers.findMany({
                 where: {
                     userId: userData === null || userData === void 0 ? void 0 : userData.id
                 },
-                select: {
+                include: {
                     workspace: {
-                        select: {
-                            workspaceId: true,
-                            name: true,
+                        include: {
                             boards: true
                         }
-                    },
+                    }
                 }
             });
+            // Extract the contents of each workspace
+            const workspaces = workspacesData.map(ws => ws.workspace);
             return res.status(200).json({ workspaces });
         }
         catch (error) {
@@ -121,35 +118,29 @@ exports.updateWorkspace = [
     (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const result = (0, express_validator_1.validationResult)(req);
         const { workspaceId } = req.params;
-        const { name, description } = req.body;
         if (!result.isEmpty()) {
             return res.status(400).json({ errorList: result.array(), error: true });
         }
-        if (!Number.isNaN(parseInt(workspaceId))) {
-            const updatedWorkspace = yield prismaClient_1.default.workspace.update({
-                where: { workspaceId: workspaceId },
-                data: { name: name, description: description }
-            });
-            if (!exports.updateWorkspace) {
-                return res.status(404).json({ message: 'Error, workspace not found', error: true });
-            }
-            return res.status(200).json({ message: 'Workspace updated', updatedWorkspace });
+        const updatedWorkspace = yield prismaClient_1.default.workspace.update({
+            where: { workspaceId: workspaceId },
+            data: req.body
+        });
+        if (!exports.updateWorkspace) {
+            return res.status(404).json({ message: 'Error, workspace not found', error: true });
         }
+        return res.status(200).json({ message: 'Workspace updated', updatedWorkspace });
     })
 ];
 function deleteWorkSpace(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         const { workspaceId } = req.params;
         try {
-            if (!Number.isNaN(parseInt(workspaceId))) {
-                const deleteWorkSpace = yield prismaClient_1.default.workspace.delete({
-                    where: {
-                        workspaceId: workspaceId,
-                    },
-                });
-                return res.status(200).json({ deleteWorkSpace });
-            }
-            return res.status(400).json({ message: 'The id is incorrect', error: true });
+            const deleteWorkSpace = yield prismaClient_1.default.workspace.delete({
+                where: {
+                    workspaceId: workspaceId,
+                },
+            });
+            return res.status(200).json({ deleteWorkSpace });
         }
         catch (error) {
             return res.status(400).json({ message: error, error: true });

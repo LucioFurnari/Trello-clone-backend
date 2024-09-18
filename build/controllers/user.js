@@ -113,7 +113,7 @@ function logout(_req, res) {
 exports.logout = logout;
 function verifyToken(req, res, next) {
     const token = req.cookies.access_token || req.body.access_token;
-    if (!token) {
+    if (token === 'undefined') {
         return next();
     }
     try {

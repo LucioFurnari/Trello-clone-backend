@@ -95,7 +95,6 @@ exports.deleteList = deleteList;
 function updatePosition(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         const { newList, newCards } = req.body;
-        // const { boardId, listId } = req.params; moveTo,
         try {
             const updatePromises = newList.map((item, index) => prismaClient_1.default.list.update({
                 where: { listId: item.listId },
