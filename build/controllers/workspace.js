@@ -36,6 +36,9 @@ exports.createWorkSpace = [
                 data: {
                     name: name,
                     description: description
+                },
+                include: {
+                    boards: true
                 }
             });
             const workspaceUsers = yield prismaClient_1.default.workspaceUsers.create({
