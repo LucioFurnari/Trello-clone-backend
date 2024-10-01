@@ -86,27 +86,34 @@ export async function deleteList(req: Request, res: Response) {
 export async function updatePosition(req: Request, res: Response) {
   const { newList, newCards } = req.body;
   
+  if (!newList || !newCards) {
+    return res.status(400).json({ message: 'Invalid input data' });
+  }
+
   try {
-    const updatePromises = newList.map((item: { listId: string; }, index: number) =>
-      prisma.list.update({
+    const updateList = newList.map((item: { listId: string }, index: number) => {
+      return prisma.list.update({
         where: { listId: item.listId },
-        data: { position: index },
-      })
-    );
+        data: { position: index }, // Set the new position
+      });
+    });
 
-    const updateCards = newCards.map((card: { cardId: string; listId: string}) => 
-      prisma.card.update({
+    const updateCards = newCards.map((card: { cardId: string; listId: string }, index: number) => {
+      return prisma.card.update({
         where: { cardId: card.cardId },
-        data: { listId: card.listId }
-      })
-    )
+        data: {
+          listId: card.listId, // Move card to the new list
+          position: index,     // Update card's position in the list
+        },
+      });
+    });
 
-    await Promise.all(updatePromises);
-    await Promise.all(updateCards);
+    // Combine both updates into a single transaction
+    await prisma.$transaction([...updateList, ...updateCards]);
 
     res.status(200).json({ message: 'Order saved successfully' });
-    } catch (error) {
-    console.error(error);
+  } catch (error) {
+    console.error('Error updating positions:', error);
     res.status(500).json({ message: 'Error saving order' });
-    }
-};
+  }
+}
