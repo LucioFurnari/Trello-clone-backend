@@ -28,6 +28,9 @@ export const createWorkSpace = [
           data: {
             name: name,
             description: description
+          },
+          include: { 
+            boards: true
           }
         })
         const workspaceUsers = await prisma.workspaceUsers.create({
