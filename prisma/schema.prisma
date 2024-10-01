@@ -74,6 +74,7 @@ model List {
 model Card {
   cardId              String        @id @default(uuid()) @db.Uuid
   title               String
+  position            Int
   description         Json?
   coverColor          String?
   coverImage          String?
