@@ -84,9 +84,17 @@ exports.createCard = [
             });
             if (!list)
                 return res.status(404).json({ message: 'List not found', error: true });
+            // Get the last card's position in the list or default to -1 if no cards exist
+            const lastCard = yield prismaClient_1.default.card.findFirst({
+                where: { listId },
+                orderBy: { position: 'desc' }
+            });
+            // Determine the new card's position
+            const newPosition = lastCard ? lastCard.position + 1 : 0;
             const card = yield prismaClient_1.default.card.create({
                 data: {
                     title: title,
+                    position: newPosition,
                     listId: listId,
                     description: description,
                     dueDate: dueDate,

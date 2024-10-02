@@ -25,34 +25,21 @@ exports.createList = [
         if (!result.isEmpty()) {
             return res.status(400).json({ errorList: result.array() });
         }
-        const lastList = yield prismaClient_1.default.list.findMany({
-            where: {
-                boardId: boardId,
-            },
-            orderBy: {
-                position: 'desc',
-            }
+        // Get the last list's position or default to -1 if no lists exist
+        const lastList = yield prismaClient_1.default.list.findFirst({
+            where: { boardId },
+            orderBy: { position: 'desc' }
         });
-        if (lastList.length === 0) {
-            const list = yield prismaClient_1.default.list.create({
-                data: {
-                    name: name,
-                    boardId: boardId,
-                    position: 0
-                }
-            });
-            return res.status(200).json({ message: 'List created', list });
-        }
-        else {
-            const list = yield prismaClient_1.default.list.create({
-                data: {
-                    name: name,
-                    boardId: boardId,
-                    position: lastList[0].position + 1,
-                }
-            });
-            return res.status(200).json({ message: 'List created', list });
-        }
+        const newPosition = lastList ? lastList.position + 1 : 0;
+        // Create the new list
+        const list = yield prismaClient_1.default.list.create({
+            data: {
+                name,
+                boardId,
+                position: newPosition,
+            },
+        });
+        return res.status(200).json({ message: 'List created', list });
     })
 ];
 // Delete list function
@@ -95,24 +82,33 @@ exports.deleteList = deleteList;
 function updatePosition(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         const { newList, newCards } = req.body;
+        if (!newList || !newCards) {
+            return res.status(400).json({ message: 'Invalid input data' });
+        }
         try {
-            const updatePromises = newList.map((item, index) => prismaClient_1.default.list.update({
-                where: { listId: item.listId },
-                data: { position: index },
-            }));
-            const updateCards = newCards.map((card) => prismaClient_1.default.card.update({
-                where: { cardId: card.cardId },
-                data: { listId: card.listId }
-            }));
-            yield Promise.all(updatePromises);
-            yield Promise.all(updateCards);
+            const updateList = newList.map((item, index) => {
+                return prismaClient_1.default.list.update({
+                    where: { listId: item.listId },
+                    data: { position: index }, // Set the new position
+                });
+            });
+            const updateCards = newCards.map((card, index) => {
+                return prismaClient_1.default.card.update({
+                    where: { cardId: card.cardId },
+                    data: {
+                        listId: card.listId, // Move card to the new list
+                        position: index, // Update card's position in the list
+                    },
+                });
+            });
+            // Combine both updates into a single transaction
+            yield prismaClient_1.default.$transaction([...updateList, ...updateCards]);
             res.status(200).json({ message: 'Order saved successfully' });
         }
         catch (error) {
-            console.error(error);
+            console.error('Error updating positions:', error);
             res.status(500).json({ message: 'Error saving order' });
         }
     });
 }
 exports.updatePosition = updatePosition;
-;
