@@ -6,45 +6,36 @@ import { NewListEntry } from "../interfaces";
 // Create List function
 export const createList = [
   body('name').trim().notEmpty().withMessage('Name is required').escape(),
-  async (req: Request<{boardId: string},{},NewListEntry>, res: Response) => {
+  async (req: Request<{ boardId: string }, {}, NewListEntry>, res: Response) => {
     const result = validationResult(req);
     const { boardId } = req.params;
     const { name } = req.body;
 
-    if(!result.isEmpty()) {
-      return res.status(400).json({ errorList: result.array() })
+    if (!result.isEmpty()) {
+      return res.status(400).json({ errorList: result.array() });
     }
 
-    const lastList = await prisma.list.findMany({
-      where: {
-        boardId: boardId,
+    // Get the last list's position or default to -1 if no lists exist
+    const lastList = await prisma.list.findFirst({
+      where: { boardId },
+      orderBy: { position: 'desc' }
+    });
+
+    const newPosition = lastList ? lastList.position + 1 : 0;
+
+    // Create the new list
+    const list = await prisma.list.create({
+      data: {
+        name,
+        boardId,
+        position: newPosition,
       },
-      orderBy: {
-        position: 'desc',
-      }
-    })
-    
-    if (lastList.length === 0) {
-      const list = await prisma.list.create({
-        data: {
-          name: name,
-          boardId: boardId,
-          position: 0
-        }
-      });
-      return res.status(200).json({ message: 'List created', list});
-    } else {
-      const list = await prisma.list.create({
-        data: {
-          name: name,
-          boardId: boardId,
-          position: lastList[0].position + 1,
-        }
-      });
-      return res.status(200).json({ message: 'List created', list});
-    }
+    });
+
+    return res.status(200).json({ message: 'List created', list });
   }
-]
+];
+
 
 // Delete list function
 export async function deleteList(req: Request, res: Response) {
