@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 
 export async function getUnsplashImages(req: Request, res: Response) {
   try {
-    const response = await fetch(`https://api.unsplash.com/photos?page=${req.params.pageNumber}&query=scenery`, {
+    const response = await fetch(`https://api.unsplash.com/photos/random?count=${req.params.pageNumber}&query=nature`, {
       headers: {
         Authorization: `Client-ID ${process.env.UNSPLASH_DEV_KEY}`
       },
