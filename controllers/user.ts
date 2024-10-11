@@ -51,6 +51,41 @@ export async function getUser(req: AuthRequest, res: Response) {
   return res.status(200).json({ message: 'Profile info', user: { username, email, id}});
 };
 
+export async function findUsers(req: Request, res: Response) {
+  const { query } = req.query as { query: string };
+
+  if (!query) {
+    return res.status(400).json({ error: 'Query parameter is required' });
+  }
+
+  try {
+    let users;
+
+    if (query.includes('@')) {
+      const isEmailValid = /\S+@\S+\.\S+/.test(query);
+      if (!isEmailValid) {
+        return res.status(400).json({ error: 'Invalid email format' });
+      }
+
+      const user = await prisma.user.findUnique({
+        where: { email: query },
+      });
+      users = user ? [user] : [];
+    } else {
+      users = await prisma.user.findMany({
+        where: {
+          name: { contains: query, mode: 'insensitive'},
+        },
+      });
+    }
+
+    return res.status(200).json(users);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 export async function updateUserData() {
   
 }
