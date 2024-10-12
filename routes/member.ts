@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { addMember } from "../controllers/member";
+import { addUserToWorkspace } from "../controllers/member";
 
 const router = Router();
 
-router.post('/workspace/:workspaceId/member', addMember);
+router.post('/workspace/:workspaceId/member', addUserToWorkspace);
 
 export { router as memberRouter }
