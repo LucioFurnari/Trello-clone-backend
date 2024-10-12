@@ -12,36 +12,40 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addMember = void 0;
+exports.addUserToWorkspace = void 0;
 const prismaClient_1 = __importDefault(require("../models/prismaClient"));
-function addMember(req, res) {
+function addUserToWorkspace(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { workspaceId } = req.params;
         const { userId } = req.body;
-        // Validate input
-        if (!workspaceId || !userId) {
-            return res.status(400).json({ message: 'Workspace ID and User ID are required' });
+        const { workspaceId } = req.params;
+        if (!userId || !workspaceId) {
+            return res.status(400).json({ error: 'User ID and Workspace ID are required' });
         }
         try {
-            // Add user to workspace
-            const addedUser = yield prismaClient_1.default.workspaceUsers.create({
-                data: {
-                    is_admin: false,
-                    userId,
-                    workspaceId
-                }
+            const existingEntry = yield prismaClient_1.default.workspaceUsers.findUnique({
+                where: {
+                    userId_workspaceId: {
+                        userId: userId,
+                        workspaceId: workspaceId
+                    },
+                },
             });
-            return res.status(201).json({ message: 'User added to the workspace', addedUser });
+            if (existingEntry) {
+                return res.status(400).json({ error: 'User is already a member of this workspace' });
+            }
+            const newWorkspaceUser = yield prismaClient_1.default.workspaceUsers.create({
+                data: {
+                    userId: userId,
+                    workspaceId: workspaceId
+                },
+            });
+            return res.status(201).json(newWorkspaceUser);
         }
         catch (error) {
             console.error('Error adding user to workspace:', error);
-            // Handle different error types
-            if (error instanceof Error) {
-                return res.status(500).json({ message: 'Internal server error', error: error.message });
-            }
-            // Fallback in case error is not an instance of Error
-            return res.status(500).json({ message: 'Internal server error', error: 'Unknown error' });
+            return res.status(500).json({ error: 'Internal server error' });
         }
     });
 }
-exports.addMember = addMember;
+exports.addUserToWorkspace = addUserToWorkspace;
+;

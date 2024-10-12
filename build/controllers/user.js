@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyToken = exports.logout = exports.loginUser = exports.updateUserData = exports.getUser = exports.createUser = void 0;
+exports.verifyToken = exports.logout = exports.loginUser = exports.updateUserData = exports.findUsers = exports.getUser = exports.createUser = void 0;
 const express_validator_1 = require("express-validator");
 const prismaClient_1 = __importDefault(require("../models/prismaClient"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
@@ -59,6 +59,41 @@ function getUser(req, res) {
     });
 }
 exports.getUser = getUser;
+;
+function findUsers(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const { query } = req.query;
+        if (!query) {
+            return res.status(400).json({ error: 'Query parameter is required' });
+        }
+        try {
+            let users;
+            if (query.includes('@')) {
+                const isEmailValid = /\S+@\S+\.\S+/.test(query);
+                if (!isEmailValid) {
+                    return res.status(400).json({ error: 'Invalid email format' });
+                }
+                const user = yield prismaClient_1.default.user.findUnique({
+                    where: { email: query },
+                });
+                users = user ? [user] : [];
+            }
+            else {
+                users = yield prismaClient_1.default.user.findMany({
+                    where: {
+                        name: { contains: query, mode: 'insensitive' },
+                    },
+                });
+            }
+            return res.status(200).json(users);
+        }
+        catch (error) {
+            console.error('Error fetching users:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    });
+}
+exports.findUsers = findUsers;
 ;
 function updateUserData() {
     return __awaiter(this, void 0, void 0, function* () {

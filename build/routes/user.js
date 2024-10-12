@@ -8,4 +8,5 @@ exports.userRouter = router;
 router.post('/user', user_1.createUser);
 router.post('/login', user_1.loginUser);
 router.get('/profile', user_1.verifyToken, user_1.getUser);
+router.get('/users', user_1.findUsers);
 router.post('/logout', user_1.logout);
