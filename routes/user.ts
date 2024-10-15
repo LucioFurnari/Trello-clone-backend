@@ -8,7 +8,7 @@ router.post('/login', loginUser);
 
 router.get('/profile', verifyToken, getUser);
 
-router.get('/users', findUsers);
+router.get('/users', verifyToken, findUsers);
 
 router.post('/logout', logout);
 
