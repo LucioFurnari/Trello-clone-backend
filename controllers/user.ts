@@ -51,7 +51,8 @@ export async function getUser(req: AuthRequest, res: Response) {
   return res.status(200).json({ message: 'Profile info', user: { username, email, id}});
 };
 
-export async function findUsers(req: Request, res: Response) {
+// Function to find user or users list
+export async function findUsers(req: AuthRequest, res: Response) {
   const { query } = req.query as { query: string };
 
   if (!query) {
@@ -59,6 +60,11 @@ export async function findUsers(req: Request, res: Response) {
   }
 
   try {
+    // Get the current user's email from req.user (set by the verifyToken middleware)
+    const currentUserEmail = req.user?.email;
+    // Get the current user's name from req.user (set by the verifyToken middleware)
+    const currentUserName = req.user?.username;
+    console.log(currentUserEmail)
     let users;
 
     if (query.includes('@')) {
@@ -70,13 +76,15 @@ export async function findUsers(req: Request, res: Response) {
       const user = await prisma.user.findUnique({
         where: { email: query },
       });
-      users = user ? [user] : [];
+      users = user && user.email !== currentUserEmail ? [user] : [];
     } else {
-      users = await prisma.user.findMany({
+      const usersList = await prisma.user.findMany({
         where: {
           name: { contains: query, mode: 'insensitive'},
         },
       });
+
+      users = usersList.filter((user) => user.name !== currentUserName);
     }
 
     return res.status(200).json(users);
