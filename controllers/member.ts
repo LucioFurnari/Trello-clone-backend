@@ -14,19 +14,22 @@ export async function addUserToWorkspace(req: Request, res: Response) {
       where: {
         userId_workspaceId: {
           userId: userId,
-          workspaceId: workspaceId
+          workspaceId: workspaceId,
         },
       },
     });
 
+    // Check if user is already in the workspace
     if (existingEntry) {
       return res.status(400).json({ error: 'User is already a member of this workspace'});
     }
 
+    // Create new workspaceUsers
     const newWorkspaceUser = await prisma.workspaceUsers.create({
       data: {
         userId: userId,
-        workspaceId: workspaceId
+        workspaceId: workspaceId,
+        is_admin: false,
       },
     });
 
