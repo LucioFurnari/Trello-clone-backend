@@ -46,7 +46,7 @@ export async function getMembersFromWorkspace(req: Request, res: Response) {
   const { workspaceId } = req.params;
 
   try {
-    const members = await prisma.workspaceUsers.findMany({
+    const membersList = await prisma.workspaceUsers.findMany({
       where: {
         workspaceId: workspaceId
       },
@@ -62,9 +62,9 @@ export async function getMembersFromWorkspace(req: Request, res: Response) {
     });
 
     // Flatten the result to extract only the user data
-  const flattenedMembers = members.map(member => member.user);
+  const members = membersList.map(member => member.user);
 
-    return res.status(200).json({ members: flattenedMembers });
+    return res.status(200).json(members);
   } catch (error) {
     console.error('Error fetching workspace:', error);
     return res.status(500).json({ error: 'Internal server error' });
