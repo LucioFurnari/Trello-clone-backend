@@ -6,7 +6,7 @@ const router = Router();
 
 router.get('/workspace/:workspaceId', verifyToken, getWorkSpace);
 
-router.get('/workspace', verifyToken, getAllWorkSpaces)
+router.get('/workspace', verifyToken, getAllWorkSpaces);
 
 router.post('/workspace', verifyToken, createWorkSpace);
 
