@@ -1,6 +1,7 @@
 import prisma from "../models/prismaClient";
 import { Request, Response } from "express";
 
+// Add user to workspace
 export async function addUserToWorkspace(req: Request, res: Response) {
   const { userId } = req.body;
   const { workspaceId } = req.params;
@@ -39,3 +40,33 @@ export async function addUserToWorkspace(req: Request, res: Response) {
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+// Get all the members from a workspace
+export async function getMembersFromWorkspace(req: Request, res: Response) {
+  const { workspaceId } = req.params;
+
+  try {
+    const members = await prisma.workspaceUsers.findMany({
+      where: {
+        workspaceId: workspaceId
+      },
+      select: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        }
+      }
+    });
+
+    // Flatten the result to extract only the user data
+  const flattenedMembers = members.map(member => member.user);
+
+    return res.status(200).json({ members: flattenedMembers });
+  } catch (error) {
+    console.error('Error fetching workspace:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+}
