@@ -4,7 +4,7 @@ import { Request, Response } from "express";
 import { AuthRequest } from "../interfaces";
 import { WorkspaceEntry } from "../interfaces";
 
-
+// Create workspace function
 export const createWorkSpace = [
   body('name').trim().notEmpty().withMessage('The name is required').escape(),
   async (req: AuthRequest<WorkspaceEntry>, res: Response) => { 
@@ -46,6 +46,7 @@ export const createWorkSpace = [
   }
 ];
 
+// Get workspace function
 export async function getWorkSpace(req: AuthRequest, res: Response) {
   const { workspaceId } = req.params;
   const userData = req.user;
@@ -85,6 +86,7 @@ export async function getWorkSpace(req: AuthRequest, res: Response) {
   }
 }
 
+// Get all workspace from a user
 export async function getAllWorkSpaces(req: AuthRequest, res: Response) {
   const userData = req.user;
 
@@ -112,6 +114,7 @@ export async function getAllWorkSpaces(req: AuthRequest, res: Response) {
   }
 }
 
+// Update workspace
 export const updateWorkspace = [
   body('name').trim().notEmpty().withMessage('The name is required').escape(),
   async (req: Request, res: Response) => {
@@ -133,6 +136,7 @@ export const updateWorkspace = [
   }
 ]
 
+// Delete workspace
 export async function deleteWorkSpace(req: Request, res: Response) {
   const { workspaceId } = req.params;
 
