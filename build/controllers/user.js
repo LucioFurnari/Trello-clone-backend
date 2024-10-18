@@ -60,13 +60,20 @@ function getUser(req, res) {
 }
 exports.getUser = getUser;
 ;
+// Function to find user or users list
 function findUsers(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
+        var _a, _b;
         const { query } = req.query;
         if (!query) {
             return res.status(400).json({ error: 'Query parameter is required' });
         }
         try {
+            // Get the current user's email from req.user (set by the verifyToken middleware)
+            const currentUserEmail = (_a = req.user) === null || _a === void 0 ? void 0 : _a.email;
+            // Get the current user's name from req.user (set by the verifyToken middleware)
+            const currentUserName = (_b = req.user) === null || _b === void 0 ? void 0 : _b.username;
+            console.log(currentUserEmail);
             let users;
             if (query.includes('@')) {
                 const isEmailValid = /\S+@\S+\.\S+/.test(query);
@@ -76,14 +83,15 @@ function findUsers(req, res) {
                 const user = yield prismaClient_1.default.user.findUnique({
                     where: { email: query },
                 });
-                users = user ? [user] : [];
+                users = user && user.email !== currentUserEmail ? [user] : [];
             }
             else {
-                users = yield prismaClient_1.default.user.findMany({
+                const usersList = yield prismaClient_1.default.user.findMany({
                     where: {
                         name: { contains: query, mode: 'insensitive' },
                     },
                 });
+                users = usersList.filter((user) => user.name !== currentUserName);
             }
             return res.status(200).json(users);
         }

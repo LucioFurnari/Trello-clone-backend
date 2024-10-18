@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteWorkSpace = exports.updateWorkspace = exports.getAllWorkSpaces = exports.getWorkSpace = exports.createWorkSpace = void 0;
 const express_validator_1 = require("express-validator");
 const prismaClient_1 = __importDefault(require("../models/prismaClient"));
+// Create workspace function
 exports.createWorkSpace = [
     (0, express_validator_1.body)('name').trim().notEmpty().withMessage('The name is required').escape(),
     (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -52,6 +53,7 @@ exports.createWorkSpace = [
         return res.status(400).json({ error: true, errorList: result });
     })
 ];
+// Get workspace function
 function getWorkSpace(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         const { workspaceId } = req.params;
@@ -89,6 +91,7 @@ function getWorkSpace(req, res) {
     });
 }
 exports.getWorkSpace = getWorkSpace;
+// Get all workspace from a user
 function getAllWorkSpaces(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         const userData = req.user;
@@ -116,6 +119,7 @@ function getAllWorkSpaces(req, res) {
     });
 }
 exports.getAllWorkSpaces = getAllWorkSpaces;
+// Update workspace
 exports.updateWorkspace = [
     (0, express_validator_1.body)('name').trim().notEmpty().withMessage('The name is required').escape(),
     (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -134,6 +138,7 @@ exports.updateWorkspace = [
         return res.status(200).json({ message: 'Workspace updated', updatedWorkspace });
     })
 ];
+// Delete workspace
 function deleteWorkSpace(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         const { workspaceId } = req.params;
