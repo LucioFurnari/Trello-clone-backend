@@ -45,6 +45,10 @@ export async function addUserToWorkspace(req: Request, res: Response) {
 export async function getMembersFromWorkspace(req: Request, res: Response) {
   const { workspaceId } = req.params;
 
+  if (!workspaceId) {
+    return res.status(400).json({ error: 'Workspace ID is required' });
+  }
+
   try {
     const membersList = await prisma.workspaceUsers.findMany({
       where: {
@@ -61,12 +65,16 @@ export async function getMembersFromWorkspace(req: Request, res: Response) {
       }
     });
 
+    if (!membersList.length) {
+      return res.status(404).json({ error: 'No members found for this workspace' });
+    }
+
     // Flatten the result to extract only the user data
-  const members = membersList.map(member => member.user);
+    const members = membersList.map((member) => member.user);
 
     return res.status(200).json(members);
   } catch (error) {
-    console.error('Error fetching workspace:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error('Error fetching workspace members:', error);
+    return res.status(500).json({ error: 'Failed to retrieve members' });
   }
 }
