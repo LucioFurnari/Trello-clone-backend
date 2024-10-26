@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteCard = exports.updateCard = exports.createCard = exports.getCard = void 0;
+exports.getUserCards = exports.deleteCard = exports.updateCard = exports.createCard = exports.getCard = void 0;
 const express_validator_1 = require("express-validator");
 const prismaClient_1 = __importDefault(require("../models/prismaClient"));
 // Get card
@@ -190,3 +190,31 @@ function deleteCard(req, res) {
     });
 }
 exports.deleteCard = deleteCard;
+function getUserCards(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const user = req.user;
+        try {
+            const cards = yield prismaClient_1.default.card.findMany({
+                where: {
+                    list: {
+                        board: {
+                            workspace: {
+                                workspacesUser: {
+                                    some: {
+                                        userId: user === null || user === void 0 ? void 0 : user.id,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            });
+            return res.status(200).json(cards);
+        }
+        catch (error) {
+            console.error('Error fetching cards:', error);
+            return res.status(500).json({ message: 'Internal server error', error: true });
+        }
+    });
+}
+exports.getUserCards = getUserCards;
