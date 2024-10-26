@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import prisma from '../models/prismaClient';
-import { NewCardEntry } from '../interfaces';
+import { AuthRequest, NewCardEntry } from '../interfaces';
 
 // Get card
 export async function getCard(req: Request, res: Response) {
@@ -168,6 +168,32 @@ export async function deleteCard(req: Request, res: Response) {
     return res.status(200).json({ message: 'Card deleted', card })
   } catch (error) {
     console.error('Error fetching workspace:', error);
+    return res.status(500).json({ message: 'Internal server error', error: true });
+  }
+}
+
+export async function getUserCards(req: AuthRequest, res: Response) {
+  const user = req.user;
+  try {
+    const cards = await prisma.card.findMany({
+      where: {
+        list: {
+          board: {
+            workspace: {
+              workspacesUser: {
+                some: {
+                  userId: user?.id,
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return res.status(200).json(cards);
+  } catch (error) {
+    console.error('Error fetching cards:', error);
     return res.status(500).json({ message: 'Internal server error', error: true });
   }
 }
